@@ -1,8 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
+import ExchangesAddress from "./ExchangesAddress";
 
 const WalletAddress = () => {
+  
+
+
   const [users, setUsers] = useState([]);
   const [languages, setLanguages] = useState([]);
   const addressRef = useRef();

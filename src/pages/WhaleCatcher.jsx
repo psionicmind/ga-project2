@@ -3,6 +3,7 @@ import Address from "./Address";
 
 const WhaleCatcher = () => {
   const [users, setUsers] = useState([]);
+  const [catchingWhale, setCatchingWhale] = useState([]);
   const [languages, setLanguages] = useState([]);
   const contractAddressRef = useRef();
   const walletAddressRef = useRef();
@@ -12,18 +13,23 @@ const WhaleCatcher = () => {
     const walletAddress = walletAddressRef.current.value;
   
 
-    if (address != "") {
-      const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          address: address,
-        }),
-      });
+    if (walletAddress != "") {
+      const url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&address=${walletAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=desc&apikey=${import.meta.env.VITE_YourApiKeyToken}`
+      // url ="https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=0xdac17f958d2ee523a2206206994597c13d831ec7&address=0xdfd5293d8e347dfe59e90efd55b2956a1343963d&page=1&offset=100&startblock=0&endblock=99999999&sort=desc&apikey=" + import.meta.env.VITE_YourApiKeyToken
+      // const res = await fetch(url, {
+      //   method: "GET",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },        
+      // });
+
+      const res  = await fetch(url)
       if (res.ok) {
-        getUserData();
+        // getUserData();
+        const data = await res.json();
+        setCatchingWhale(data);
+        console.log(`data= ${data}`)
+        console.log(`data[0]= ${data[0]}`)
         contractAddressRef.current.value = "";
         walletAddressRef.current.value = "";
       } else {
@@ -71,7 +77,9 @@ const WhaleCatcher = () => {
         <input
           type="text"
           ref={contractAddressRef}
-          placeholder="Enter Contract Address"
+          // placeholder="Enter Contract Address"
+          value="0x6982508145454Ce325dDbE47a25d4ec3d2311933"
+          placeholder="0x6982508145454Ce325dDbE47a25d4ec3d2311933"
           className="col-md-6"
         ></input>
       </div>
@@ -79,7 +87,9 @@ const WhaleCatcher = () => {
         <input
           type="text"
           ref={walletAddressRef}
-          placeholder="Enter Wallet Address"
+          // placeholder="Enter Wallet Address"
+          value="0x28C6c06298d514Db089934071355E5743bf21d60"
+          placeholder="0x28C6c06298d514Db089934071355E5743bf21d60"
           className="col-md-6"
         ></input>
         <button className="col-md-2" onClick={catchWhale}>

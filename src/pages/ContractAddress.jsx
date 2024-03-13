@@ -1,23 +1,27 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
-import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
+import {contractAddressList} from "./exchangesAddress.js";
+import LabelCom from "../components/LabelCom.jsx";
+import InputCom from "../components/InputCom.jsx";
+import ButtonCom from "../components/ButtonCom.jsx";
 
 const ContractAddress = () => {
-  const caData = [...contractAddressList]
-  const [users, setUsers] = useState(caData);
-  const [languages, setLanguages] = useState([]);
+  const [users, setUsers] = useState([]);
   const addressRef = useRef();
   const tagRef = useRef();
 
-  console.log("caData=" + JSON.stringify(caData))
+
   const getUserData = async (signal) => {
     console.log("getUserData @ ContractAddress.jsx");
-    getLocalData()   
-    getServerUpdate();
+    setLocalData()   
+
+    console.log("contractAddressList=" + contractAddressList)
+    setUsers(contractAddressList);
+    // getServerUpdate(); // airtable data
   };
 
-  const getLocalData = async () => {
+  const setLocalData = async () => {
     console.log("getting local data")
     setUsers(contractAddressList);
   }
@@ -39,11 +43,34 @@ const ContractAddress = () => {
       }
     }
   }
+
+  const setAirTable = () => {
+    console.log("setairtable")
+
+    contractAddressList.push({name: tagRef.current.value, address: addressRef.current.value})
+    console.log("contractAddressList=" + contractAddressList)
+    setUsers(contractAddressList)    
+    // next will be set data to airtable for persistence storage
+    getUserData()
+
+  }
   const addAddress = async () => {
-    const tagRef = tagRef.current.value;
+    const tag = tagRef.current.value;
     const address = addressRef.current.value;
   
+    console.log(tag)
+    console.log(address)
+    console.log(`tagRef.current.value=${tagRef.current.value}`)
+    console.log(`addressRef.current.value=${addressRef.current.value}`)
+
     if (address != "") {
+
+      setAirTable()
+      // setUsers((prevState) => {
+      //   return [...prevState, {name: tag, address: address}]
+      // });
+
+     
       // const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
       //   method: "PUT",
       //   headers: {
@@ -53,7 +80,8 @@ const ContractAddress = () => {
       //     address: address,
       //   }),
       // });
-      if (res.ok) {
+      // if (res.ok) {
+      if (true){
         getUserData();
         tagRef.current.value = "";
         addressRef.current.value = "";
@@ -65,30 +93,49 @@ const ContractAddress = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("useEffect")
+    const controller = new AbortController();
+    console.log("contractAddressList="+ JSON.stringify(contractAddressList))
+    setUsers(contractAddressList);
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("useEffect")
+    const controller = new AbortController();
+    console.log("contractAddressList="+ JSON.stringify(contractAddressList))
+    setUsers(contractAddressList);
+
+    return () => {
+      controller.abort();
+    };
+  }, [users]);
+
+
   return (
     <div className="container">
       <h1>Contract Address</h1>
 
       <div className="row">
-        <input
-          type="text"
-          ref={tagRef}
+        <InputCom
+          reference={tagRef}
           placeholder="Enter NickName"
-          className="col-md-6"
-        ></input>
+        ></InputCom>
       </div>
       <div className="row">      
-        <input
-          type="text"
-          ref={addressRef}
+        <InputCom
+          reference={addressRef}
           placeholder="Enter Address"
-          className="col-md-6"
-        ></input>
+        ></InputCom>
       </div>
       <div className="row">          
-        <button className="col-md-3" onClick={addAddress}>
+        <ButtonCom handleBtnClick={addAddress}>
           Add Contract Address
-        </button>
+        </ButtonCom>
       <div>
         {/* {Isloading && spinnerComponent} */}
       </div>

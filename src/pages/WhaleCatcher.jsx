@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
-import WalletAddress from "./WalletAddress";
+
 import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
 
 const WhaleCatcher = () => {

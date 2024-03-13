@@ -2,23 +2,26 @@ import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
 import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
+import LabelCom from "../components/LabelCom.jsx";
+import InputCom from "../components/InputCom.jsx";
+import ButtonCom from "../components/ButtonCom.jsx";
+import SelectOptionCom from "../components/SelectOptionCom.jsx";
 
 const WalletAddress = () => {
-  const caData = [...exchangesInPepeToken]  
-  const [users, setUsers] = useState(caData);
-  const [languages, setLanguages] = useState([]);
+  const [users, setUsers] = useState([]);
   const addressRef = useRef();
   const tagRef = useRef();
+  const selectedRef = useRef();
 
   const getUserData = async (signal) => {
-    console.log("getUserData @ WalletAddress.jsx");
-    getLocalData();    
-    getServerData();
+    // console.log("getUserData @ WalletAddress.jsx");
+    setLocalData();    
+    // getServerData(); // airtable data
   };
 
-  const getLocalData = async () => {
-    console.log("getting local data")
-    setUsers(exchangesInPepeToken);
+  const setLocalData = async () => {
+    // console.log("getting local data")
+    // setUsers(exchangesInPepeToken);
   }
 
   const getServerData = async (signal) => {
@@ -37,11 +40,33 @@ const WalletAddress = () => {
       }
     }
   }
+
+  
+  const handleSelectChange = (event) => {
+    console.log("event.target.value at walletaddress=" + event.target.value)
+    if (event.target.value ==="shiba inu"){
+      setUsers(exchangesInShibaInuToken);
+      console.log(users)      
+    }
+    else if (event.target.value ==="pepe"){
+      setUsers(exchangesInPepeToken);   
+      console.log(users)     
+    }
+    // next will be set data to airtable for persistence storage
+    getUserData()
+
+  }
+
   const addAddress = async () => {
-    const tagRef = tagRef.current.value;
+    const tag = tagRef.current.value;
     const address = addressRef.current.value;
 
+    console.log(`tagRef.current.value=${tagRef.current.value}`)
+    console.log(`addressRef.current.value=${addressRef.current.value}`)
+
     if (address != "") {
+      // send new data using setUsers  AND airtable
+
       // const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
       //   method: "PUT",
       //   headers: {
@@ -51,10 +76,11 @@ const WalletAddress = () => {
       //     address: address,
       //   }),
       // });
-      if (res.ok) {
+      // if (res.ok) {
+      if (true) {
         getUserData();
         tagRef.current.value = "";
-        address.current.value = "";
+        addressRef.current.value = "";
       } else {
         console.log("an error has occurred");
       }
@@ -63,32 +89,48 @@ const WalletAddress = () => {
     }
   };
 
+  useEffect(() => {
+    const controller = new AbortController();
+    // getUserData(controller.signal);
+    setUsers(exchangesInPepeToken);
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+
   return (
     <div className="container">
       <h1>Wallet Address</h1>
 
       <div className="row">
-        <input
-          type="text"
-          ref={tagRef}
-          placeholder="Enter NickName"
-          className="col-md-6"
-        ></input>        
+        <InputCom
+          reference={tagRef}
+          placeholder="Enter NickName"          
+        ></InputCom>        
       </div>
       <div className="row">      
-        <input
-          type="text"
-          ref={addressRef}
-          placeholder="Enter Address"
-          className="col-md-6"
-        ></input>
+        <InputCom
+          reference={addressRef}          
+          placeholder="Enter Address"          
+        ></InputCom>
       </div>
       <div className="row">              
-        <button className="col-md-3" onClick={addAddress}>
+        <ButtonCom handleBtnClick={addAddress}>
           Add Wallet Address
-        </button>
+        </ButtonCom>
       </div>
       <br/>
+      <SelectOptionCom 
+        className="row"
+        reference={selectedRef} 
+        optionPattern="contractAddress"
+        onSelect={handleSelectChange}
+      >
+      </SelectOptionCom>
+
+
       <br/>
       {users.map((item, idx) => {
         return (

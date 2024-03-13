@@ -33,16 +33,12 @@ const Address = (props) => {
           setShowUpdateModal={setShowUpdateModal}
         />
       )}
-      <div className={`row ${styles.user}`}>
+      <div className={`row ${styles.address}`}>
         <div className="col-sm-1">{props.id}</div>
         <div className="col-sm-2">{props.name}</div>
         <div className="col-sm-6">{props.address}</div>
-        <button className="col-sm-1" onClick={deleteUser}>
-          delete
-        </button>
-        <button className="col-sm-1" onClick={() => setShowUpdateModal(true)}>
-          update
-        </button>
+        {/* <button className="col-sm-1" onClick={deleteUser}>delete</button> //icebox
+        <button className="col-sm-1" onClick={() => setShowUpdateModal(true)}>update</button> */}
       </div>
     </>
   );

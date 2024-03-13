@@ -4,14 +4,12 @@ import styles from "./Modal.module.css";
 
 const OverLayUser = (props) => {
   const nameRef = useRef();
-  const ageRef = useRef();
-  const countryRef = useRef();
+  const addressRef = useRef();
 
   const updateUser = async () => {
     console.log(`props.id=${props.id}`);
     console.log(`nameRef.current.value=${nameRef.current.value}`);
-    console.log(`ageRef.current.value=${ageRef.current.value}`);
-    console.log(`countryRef.current.value=${countryRef.current.value}`);
+    console.log(`addressRef.current.value=${addressRef.current.value}`);
 
     const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users/", {
       method: "PATCH",
@@ -21,8 +19,7 @@ const OverLayUser = (props) => {
       body: JSON.stringify({
         user_id: props.id,
         name: nameRef.current.value,
-        age: ageRef.current.value,
-        country: countryRef.current.value,
+        address: addressRef.current.value,
       }),
     });
     if (res.ok) {
@@ -50,24 +47,12 @@ const OverLayUser = (props) => {
 
         <div className="row">
           <div className="col-md-3"></div>
-          <div className="col-md-3">Age</div>
+          <div className="col-md-3">Address</div>
           <input
-            ref={ageRef}
+            ref={addressRef}
             type="text"
             className="col-md-3"
-            defaultValue={props.age}
-          />
-          <div className="col-md-3"></div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-3"></div>
-          <div className="col-md-3">Country</div>
-          <input
-            ref={countryRef}
-            type="text"
-            className="col-md-3"
-            defaultValue={props.country}
+            defaultValue={props.address}
           />
           <div className="col-md-3"></div>
         </div>
@@ -97,8 +82,7 @@ const UpdateUserModal = (props) => {
         <OverLayUser
           id={props.id}
           name={props.name}
-          age={props.age}
-          country={props.country}
+          address={props.address}
           getUserData={props.getUserData}
           setShowUpdateModal={props.setShowUpdateModal}
         ></OverLayUser>,

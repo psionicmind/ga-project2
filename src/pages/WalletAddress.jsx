@@ -1,19 +1,27 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
-import ExchangesAddress from "./ExchangesAddress";
+import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
 
 const WalletAddress = () => {
-  
-
-
-  const [users, setUsers] = useState([]);
+  const caData = [...exchangesInPepeToken]  
+  const [users, setUsers] = useState(caData);
   const [languages, setLanguages] = useState([]);
   const addressRef = useRef();
   const tagRef = useRef();
 
   const getUserData = async (signal) => {
     console.log("getUserData @ WalletAddress.jsx");
+    getLocalData();    
+    getServerData();
+  };
+
+  const getLocalData = async () => {
+    console.log("getting local data")
+    setUsers(exchangesInPepeToken);
+  }
+
+  const getServerData = async (signal) => {
     try {
       const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
         signal,
@@ -28,27 +36,25 @@ const WalletAddress = () => {
         console.log(error.message);
       }
     }
-  };
-
+  }
   const addAddress = async () => {
-    const address = addressRef.current.value;
     const tagRef = tagRef.current.value;
+    const address = addressRef.current.value;
 
     if (address != "") {
-      const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          address: address,
-        }),
-      });
+      // const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
+      //   method: "PUT",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     address: address,
+      //   }),
+      // });
       if (res.ok) {
         getUserData();
-        nameRef.current.value = "";
-        ageRef.current.value = "";
-        countryRef.current.value = "";
+        tagRef.current.value = "";
+        address.current.value = "";
       } else {
         console.log("an error has occurred");
       }
@@ -82,14 +88,15 @@ const WalletAddress = () => {
           Add Wallet Address
         </button>
       </div>
+      <br/>
+      <br/>
       {users.map((item, idx) => {
         return (
           <Address
             key={idx}
             id={item.id}
             name={item.name}
-            age={item.age}
-            country={item.country}
+            address={item.address}
             getUserData={getUserData}
           />
         );

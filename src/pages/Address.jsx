@@ -28,21 +28,19 @@ const Address = (props) => {
         <UpdateUserModal
           id={props.id}
           name={props.name}
-          age={props.age}
-          country={props.country}
+          address={props.address}
           getUserData={props.getUserData}
           setShowUpdateModal={setShowUpdateModal}
         />
       )}
       <div className={`row ${styles.user}`}>
         <div className="col-sm-1">{props.id}</div>
-        <div className="col-sm-3">{props.name}</div>
-        <div className="col-sm-2">{props.age}</div>
-        <div className="col-sm-2">{props.country}</div>
-        <button className="col-sm-2" onClick={deleteUser}>
+        <div className="col-sm-2">{props.name}</div>
+        <div className="col-sm-6">{props.address}</div>
+        <button className="col-sm-1" onClick={deleteUser}>
           delete
         </button>
-        <button className="col-sm-2" onClick={() => setShowUpdateModal(true)}>
+        <button className="col-sm-1" onClick={() => setShowUpdateModal(true)}>
           update
         </button>
       </div>

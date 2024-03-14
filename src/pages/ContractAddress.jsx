@@ -12,18 +12,16 @@ const ContractAddress = () => {
   const tagRef = useRef();
 
 
-  const getUserData = async (signal) => {
+  const getUserData = () => {
     console.log("getUserData @ ContractAddress.jsx");
-    setLocalData()   
-
-    console.log("contractAddressList=" + contractAddressList)
-    setUsers(contractAddressList);
+    getLocalData()   
     // getServerUpdate(); // airtable data
   };
 
-  const setLocalData = async () => {
+  const getLocalData = () => {
     console.log("getting local data")
-    setUsers(contractAddressList);
+    const temp=[...contractAddressList]
+    setUsers(temp);
   }
 
   const getServerUpdate = async (signal) => {
@@ -44,17 +42,19 @@ const ContractAddress = () => {
     }
   }
 
-  const setAirTable = () => {
-    console.log("setairtable")
+  const setDataToAirTable = () => {
+    console.log("setDataToAirTable")
 
     contractAddressList.push({name: tagRef.current.value, address: addressRef.current.value})
     console.log("contractAddressList=" + contractAddressList)
-    setUsers(contractAddressList)    
     // next will be set data to airtable for persistence storage
-    getUserData()
+
+    return true;
 
   }
-  const addAddress = async () => {
+
+  
+  const addAddress = () => {
     const tag = tagRef.current.value;
     const address = addressRef.current.value;
   
@@ -63,25 +63,8 @@ const ContractAddress = () => {
     console.log(`tagRef.current.value=${tagRef.current.value}`)
     console.log(`addressRef.current.value=${addressRef.current.value}`)
 
-    if (address != "") {
-
-      setAirTable()
-      // setUsers((prevState) => {
-      //   return [...prevState, {name: tag, address: address}]
-      // });
-
-     
-      // const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     address: address,
-      //   }),
-      // });
-      // if (res.ok) {
-      if (true){
+    if (address != "") {    
+      if (setDataToAirTable()){
         getUserData();
         tagRef.current.value = "";
         addressRef.current.value = "";
@@ -96,25 +79,14 @@ const ContractAddress = () => {
   useEffect(() => {
     console.log("useEffect")
     const controller = new AbortController();
-    console.log("contractAddressList="+ JSON.stringify(contractAddressList))
+    // console.log("contractAddressList="+ JSON.stringify(contractAddressList))
     setUsers(contractAddressList);
 
     return () => {
       controller.abort();
     };
   }, []);
-
-  useEffect(() => {
-    console.log("useEffect")
-    const controller = new AbortController();
-    console.log("contractAddressList="+ JSON.stringify(contractAddressList))
-    setUsers(contractAddressList);
-
-    return () => {
-      controller.abort();
-    };
-  }, [users]);
-
+  // }, [users]);
 
   return (
     <div className="container">
@@ -154,6 +126,7 @@ const ContractAddress = () => {
           />
         );
       })}
+
       <br />
       <br />
     </div>

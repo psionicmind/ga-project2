@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
-import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
+import {exchangesArray, exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
 import LabelCom from "../components/LabelCom.jsx";
 import InputCom from "../components/InputCom.jsx";
 import ButtonCom from "../components/ButtonCom.jsx";
@@ -9,6 +9,7 @@ import SelectOptionCom from "../components/SelectOptionCom.jsx";
 
 const WalletAddress = () => {
   const [users, setUsers] = useState([]);
+  const [tokenName, setTokenName] = useState("pepe");
   const addressRef = useRef();
   const tagRef = useRef();
   const selectedRef = useRef();
@@ -21,7 +22,17 @@ const WalletAddress = () => {
 
   const setLocalData = async () => {
     // console.log("getting local data")
-    // setUsers(exchangesInPepeToken);
+    let temp = undefined
+    if (tokenName=="shiba inu"){
+      console.log("pushing data to exchangesInShibaInuToken")
+      temp = [...exchangesInShibaInuToken]
+      setUsers(temp);      
+    }
+    else if (tokenName=="pepe"){
+      console.log("pushing data to exchangesInPepeToken")
+      temp = [...exchangesInPepeToken]
+      setUsers(temp);
+    }
   }
 
   const getServerData = async (signal) => {
@@ -43,21 +54,48 @@ const WalletAddress = () => {
 
   
   const handleSelectChange = (event) => {
-    console.log("event.target.value at walletaddress=" + event.target.value)
+    let temp=undefined
+    console.log("event.target.value at walletaddress=" + event.target.value)    
     if (event.target.value ==="shiba inu"){
-      setUsers(exchangesInShibaInuToken);
+      temp = [...exchangesInShibaInuToken]
+      setUsers(temp);
+      // setUsers(exchangesInShibaInuToken)
+      setTokenName("shiba inu")
       console.log(users)      
     }
     else if (event.target.value ==="pepe"){
-      setUsers(exchangesInPepeToken);   
+      temp = [...exchangesInPepeToken]      
+      setUsers(temp);      
+      // setUsers(exchangesInPepeToken);   
+      setTokenName("pepe")
       console.log(users)     
     }
     // next will be set data to airtable for persistence storage
-    getUserData()
+    // getUserData()
 
   }
 
-  const addAddress = async () => {
+  const setDataToAirTable = () => {
+    console.log("setDataToAirTable")
+
+    if (tokenName=="shiba inu"){
+      console.log("pushing data to exchangesInShibaInuToken")
+      exchangesInShibaInuToken.push({name: tagRef.current.value, address: addressRef.current.value})
+    }
+    else if (tokenName=="pepe"){
+      console.log("pushing data to exchangesInPepeToken")
+      exchangesInPepeToken.push({name: tagRef.current.value, address: addressRef.current.value})
+    }
+    else{
+      return false;
+    }
+
+    // next will be set data to airtable for persistence storage
+
+    return true;
+  }
+
+  const addAddress = async (event) => {
     const tag = tagRef.current.value;
     const address = addressRef.current.value;
 
@@ -65,19 +103,7 @@ const WalletAddress = () => {
     console.log(`addressRef.current.value=${addressRef.current.value}`)
 
     if (address != "") {
-      // send new data using setUsers  AND airtable
-
-      // const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     address: address,
-      //   }),
-      // });
-      // if (res.ok) {
-      if (true) {
+      if (setDataToAirTable()) {
         getUserData();
         tagRef.current.value = "";
         addressRef.current.value = "";

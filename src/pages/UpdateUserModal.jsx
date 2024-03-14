@@ -23,7 +23,7 @@ const OverLayUser = (props) => {
       }),
     });
     if (res.ok) {
-      props.getUserData();
+      props.getData();
       props.setShowUpdateModal(false);
     }
   };
@@ -83,7 +83,7 @@ const UpdateUserModal = (props) => {
           id={props.id}
           name={props.name}
           address={props.address}
-          getUserData={props.getUserData}
+          getData={props.getData}
           setShowUpdateModal={props.setShowUpdateModal}
         ></OverLayUser>,
         document.querySelector("#user-modal-root")

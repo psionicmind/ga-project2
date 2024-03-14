@@ -29,7 +29,7 @@ const Address = (props) => {
           id={props.id}
           name={props.name}
           address={props.address}
-          getUserData={props.getUserData}
+          getData={props.getData}
           setShowUpdateModal={setShowUpdateModal}
         />
       )}

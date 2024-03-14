@@ -14,8 +14,8 @@ const WalletAddress = () => {
   const tagRef = useRef();
   const selectedRef = useRef();
 
-  const getUserData = async (signal) => {
-    // console.log("getUserData @ WalletAddress.jsx");
+  const getData = async (signal) => {
+    // console.log("getData @ WalletAddress.jsx");
     setLocalData();    
     // getServerData(); // airtable data
   };
@@ -64,14 +64,12 @@ const WalletAddress = () => {
     if (event.target.value ==="shiba inu"){
       temp = [...exchangesArray[tokenNames["shiba inu"]]]
       setUsers(temp);
-      // setUsers(exchangesArray[tokenNames["shiba inu"]])
       setTokenName("shiba inu")
       console.log(users)      
     }
     else if (event.target.value ==="pepe"){
       temp = [...exchangesArray[tokenNames["pepe"]]]      
       setUsers(temp);      
-      // setUsers(exchangesArray[tokenNames["pepe"]]);   
       setTokenName("pepe")
       console.log(users)     
     }
@@ -85,11 +83,10 @@ const WalletAddress = () => {
       const tempNum = tokenNames[event.target.value]
       temp = [...exchangesArray[tempNum]]      
       setUsers(temp);      
-      // setUsers(exchangesArray[tokenNames[event.target.value]]);   
       console.log(users)     
     } 
     // next will be set data to airtable for persistence storage
-    // getUserData()
+    // getData()
 
   }
 
@@ -123,7 +120,7 @@ const WalletAddress = () => {
 
     if (address != "") {
       if (setDataToAirTable()) {
-        getUserData();
+        getServerData();
         tagRef.current.value = "";
         addressRef.current.value = "";
       } else {
@@ -184,7 +181,7 @@ const WalletAddress = () => {
             id={item.id}
             name={item.name}
             address={item.address}
-            getUserData={getUserData}
+            getData={getData}
           />
         );
       })}

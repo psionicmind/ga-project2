@@ -7,14 +7,15 @@ import InputCom from "../components/InputCom.jsx";
 import ButtonCom from "../components/ButtonCom.jsx";
 
 const ContractAddress = () => {
-  const [users, setUsers] = useState([]);
+  const [local, setLocal] = useState([]);
+  const [userDefined, setUserDefined] = useState([]);
   const [isFirstTimeLoading, setIsFirstTimeLoading] = useState(true)
   const addressRef = useRef();
   const tagRef = useRef();
 
 
-  const getUserData = () => {
-    console.log("getUserData @ ContractAddress.jsx");
+  const getData = () => {
+    console.log("getData @ ContractAddress.jsx");
     getLocalData()   
     getServerUpdate(); // airtable data
 
@@ -23,7 +24,43 @@ const ContractAddress = () => {
   const getLocalData = () => {
     console.log("getting local data")
     const temp=[...contractAddressList]
-    setUsers(temp);
+    setLocal(temp);
+  }
+
+  const createRecordInServer = async (signal) => {
+    try {
+      const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`     
+
+      const res = await fetch(url, {
+        signal, 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_AirtableApiToken}`,
+        },
+        body: JSON.stringify({
+          "records": [
+            {
+              "fields": {
+                "name": `${tagRef.current.value}`,
+                "address": `${addressRef.current.value}`
+              }
+            }            
+          ]
+        }),        
+      });
+
+      if (res.ok) {
+
+        let tempList=[...userDefined, {name: `${tagRef.current.value}`, address: `${addressRef.current.value}`}]
+        setUserDefined(tempList);        
+
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.log(error.message);
+      }
+    }
   }
 
   const getServerUpdate = async (signal) => {
@@ -37,27 +74,27 @@ const ContractAddress = () => {
       });
 
       if (res.ok) {
+        console.log("await res.json")
         const data = await res.json();
+        console.log("data.records.length ")
         console.log(data.records.length)
         console.log(data.records)
 
-        let name=""
-        let address=""
+        let nameOfRecord=""
+        let addressOfRecord=""
         console.log("ready")
-        console.log(contractAddressList)
-        console.log("ready2")
 
+        let tempList=[]
         for (const record in data.records){
-          name = data.records[record].fields.name
-          address=data.records[record].fields.address
-          console.log(name)
-          console.log(address)
-          contractAddressList.push({name: name, address: address})
+          nameOfRecord = data.records[record].fields.name
+          addressOfRecord=data.records[record].fields.address
+          console.log(nameOfRecord)
+          console.log(addressOfRecord)
+          tempList.push({name: `${nameOfRecord}`, address: `${addressOfRecord}`})
         }
+
         console.log("see lah")
-        console.log(contractAddressList)
-        const temp=[...contractAddressList]
-        setUsers(temp);        
+        setUserDefined(tempList);        
 
       }
     } catch (error) {
@@ -70,13 +107,11 @@ const ContractAddress = () => {
   const setDataToAirTable = () => {
     console.log("setDataToAirTable")
 
-    contractAddressList.push({name: tagRef.current.value, address: addressRef.current.value})
-    console.log("contractAddressList=" + contractAddressList)
+    // for airtable
+    createRecordInServer()
 
     console.log("creating new array in exchangesArray")
     exchangesArray.push([])
-
-
 
     // tokenNames.push(tagRef.current.value)
     console.log(Object.keys(tokenNames).length)
@@ -99,7 +134,7 @@ const ContractAddress = () => {
 
     if (address != "") {    
       if (setDataToAirTable()){
-        getUserData();
+        getServerUpdate(); // airtable data
         tagRef.current.value = "";
         addressRef.current.value = "";
       } else {
@@ -110,14 +145,18 @@ const ContractAddress = () => {
     }
   };
 
+  
+
   useEffect(() => {
     console.log("useEffect")
     const controller = new AbortController();
-    // console.log("contractAddressList="+ JSON.stringify(contractAddressList))
-    if (isFirstTimeLoading === false)
-      setUsers(contractAddressList);
+
+    if (isFirstTimeLoading === false){
+      getData()
+    }
     else{
-      getUserData()
+      //first time loading
+      getData()
       setIsFirstTimeLoading(false)
     }
 
@@ -125,7 +164,7 @@ const ContractAddress = () => {
       controller.abort();
     };
   }, []);
-  // }, [users]);
+  // }, [userDefined]);
 
   return (
     <div className="container">
@@ -153,18 +192,33 @@ const ContractAddress = () => {
       </div>
       <br/>
       <br/>
-
-      {users.map((item, idx) => {
+      
+      <LabelCom>Local Contract Address</LabelCom>
+      {local.map((item, idx) => {
         return (
           <Address
             key={idx}
             id={item.id}
             name={item.name}
             address={item.address}
-            getUserData={getUserData}
+            getData={getLocalData}
           />
         );
       })}
+      <br/>
+      <LabelCom>User Defined Contract Address</LabelCom>
+      {userDefined.map((item, idx) => {
+        return (
+          <Address
+            key={idx}
+            id={item.id}
+            name={item.name}
+            address={item.address}
+            getData={getServerUpdate}
+          />
+        );
+      })}
+
 
       <br />
       <br />

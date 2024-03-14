@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
-import {contractAddressList} from "./exchangesAddress.js";
+import {contractAddressList, tokenNames} from "./exchangesAddress.js";
 import LabelCom from "../components/LabelCom.jsx";
 import InputCom from "../components/InputCom.jsx";
 import ButtonCom from "../components/ButtonCom.jsx";
@@ -47,6 +47,8 @@ const ContractAddress = () => {
 
     contractAddressList.push({name: tagRef.current.value, address: addressRef.current.value})
     console.log("contractAddressList=" + contractAddressList)
+
+    tokenNames.push(tagRef.current.value)
     // next will be set data to airtable for persistence storage
 
     return true;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
-import {exchangesArray, exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
+import {exchangesArray, tokenNames, contractAddressList} from "./exchangesAddress.js";
 import LabelCom from "../components/LabelCom.jsx";
 import InputCom from "../components/InputCom.jsx";
 import ButtonCom from "../components/ButtonCom.jsx";
@@ -24,13 +24,13 @@ const WalletAddress = () => {
     // console.log("getting local data")
     let temp = undefined
     if (tokenName=="shiba inu"){
-      console.log("pushing data to exchangesInShibaInuToken")
-      temp = [...exchangesInShibaInuToken]
+      console.log("pushing data to shiba inu list")
+      temp = [...exchangesArray[tokenNames["shiba inu"]]]
       setUsers(temp);      
     }
     else if (tokenName=="pepe"){
-      console.log("pushing data to exchangesInPepeToken")
-      temp = [...exchangesInPepeToken]
+      console.log("pushing data to pepe list")
+      temp = [...exchangesArray[tokenNames["pepe"]]]
       setUsers(temp);
     }
   }
@@ -57,19 +57,31 @@ const WalletAddress = () => {
     let temp=undefined
     console.log("event.target.value at walletaddress=" + event.target.value)    
     if (event.target.value ==="shiba inu"){
-      temp = [...exchangesInShibaInuToken]
+      temp = [...exchangesArray[tokenNames["shiba inu"]]]
       setUsers(temp);
-      // setUsers(exchangesInShibaInuToken)
+      // setUsers(exchangesArray[tokenNames["shiba inu"]])
       setTokenName("shiba inu")
       console.log(users)      
     }
     else if (event.target.value ==="pepe"){
-      temp = [...exchangesInPepeToken]      
+      temp = [...exchangesArray[tokenNames["pepe"]]]      
       setUsers(temp);      
-      // setUsers(exchangesInPepeToken);   
+      // setUsers(exchangesArray[tokenNames["pepe"]]);   
       setTokenName("pepe")
       console.log(users)     
     }
+    else{
+      setTokenName(event.target.value)
+      console.log("event target value=" + event.target.value)
+      console.log("tokenNames" + tokenNames[2])
+      console.log(typeof(event.target.value))
+      console.log("tokenNames" + tokenNames[event.target.value])
+
+      temp = [...exchangesArray[tokenNames["event.target.value"]]]      
+      setUsers(temp);      
+      // setUsers(exchangesArray[tokenNames[event.target.value]]);   
+      console.log(users)     
+    } 
     // next will be set data to airtable for persistence storage
     // getUserData()
 
@@ -79,15 +91,16 @@ const WalletAddress = () => {
     console.log("setDataToAirTable")
 
     if (tokenName=="shiba inu"){
-      console.log("pushing data to exchangesInShibaInuToken")
-      exchangesInShibaInuToken.push({name: tagRef.current.value, address: addressRef.current.value})
+      console.log(`pushing data to exchangesArray[tokenNames["shiba inu"]]`)
+      exchangesArray[tokenNames["shiba inu"]].push({name: tagRef.current.value, address: addressRef.current.value})
     }
     else if (tokenName=="pepe"){
-      console.log("pushing data to exchangesInPepeToken")
-      exchangesInPepeToken.push({name: tagRef.current.value, address: addressRef.current.value})
+      console.log(`pushing data to exchangesArray[tokenNames["pepe"]]`)
+      exchangesArray[tokenNames["pepe"]].push({name: tagRef.current.value, address: addressRef.current.value})
     }
     else{
-      return false;
+      console.log(`pushing data to exchangesArray[tokenNames["?"]]`)
+      exchangesArray[tokenNames[tokenName]].push({name: tagRef.current.value, address: addressRef.current.value})
     }
 
     // next will be set data to airtable for persistence storage
@@ -118,7 +131,7 @@ const WalletAddress = () => {
   useEffect(() => {
     const controller = new AbortController();
     // getUserData(controller.signal);
-    setUsers(exchangesInPepeToken);
+    setUsers(exchangesArray[tokenNames["pepe"]]);
 
     return () => {
       controller.abort();

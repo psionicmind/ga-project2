@@ -93,3 +93,8 @@ export let exchangesInShibaInuToken = [ //exchanges in shiba inu token (0x95aD61
 
 ] 
 export let exchangesArray=[exchangesInPepeToken,exchangesInShibaInuToken]
+
+export let tokenNames = {
+  "pepe" : 0,
+  "shiba inu": 1,
+} 

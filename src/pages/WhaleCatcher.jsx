@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
-
+import SelectOptionCom from "../components/SelectOptionCom.jsx";
 import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
 
 const WhaleCatcher = () => {
   const [users, setUsers] = useState([]);
   const [catchingWhale, setCatchingWhale] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const contractAddressRef = useRef();
-  const walletAddressRef = useRef();
- 
+  // const contractAddressRef = useRef();
+  // const walletAddressRef = useRef();
+  const selectedRef = useRef();
   
   
 
@@ -60,8 +60,8 @@ const WhaleCatcher = () => {
 }
   
   const catchWhale = async () => {
-    const contractAddress = contractAddressRef.current.value;
-    const walletAddress = walletAddressRef.current.value;
+    // const contractAddress = contractAddressRef.current.value;
+    // const walletAddress = walletAddressRef.current.value;
   
 
     if (contractAddress != "") {
@@ -88,14 +88,18 @@ const WhaleCatcher = () => {
         runLoopFunction(data, contractAddress)
 
 
-        contractAddressRef.current.value = "";
-        walletAddressRef.current.value = "";
+        // contractAddressRef.current.value = "";
+        // walletAddressRef.current.value = "";
       } else {
         console.log("an error has occurred");
       }
     } else {
       console.log("wrong entry, check again");
     }  
+  }
+
+  const handleSelectChange = (event) => {
+
   }
 
   // const getUserData = async (signal) => {
@@ -131,7 +135,7 @@ const WhaleCatcher = () => {
     <div className="container">
       <h1>Whale Catcher</h1>
 
-      <div className="row">
+      {/* <div className="row">
         <label>0x6982508145454Ce325dDbE47a25d4ec3d2311933</label>
         <input
           type="text"
@@ -140,8 +144,17 @@ const WhaleCatcher = () => {
           // placeholder="0x6982508145454Ce325dDbE47a25d4ec3d2311933"
           className="col-md-6"
         ></input>
+      </div> */}
+      <div>
+        <SelectOptionCom 
+          className="row"
+          reference={selectedRef} 
+          optionPattern="contractAddress"
+          onSelect={handleSelectChange}
+        >
+        </SelectOptionCom>
       </div>
-      <div className="row">
+      {/* <div className="row">
         <label>0x28C6c06298d514Db089934071355E5743bf21d60</label>
         <input
           type="text"
@@ -150,9 +163,11 @@ const WhaleCatcher = () => {
           // placeholder="0x28C6c06298d514Db089934071355E5743bf21d60"
           className="col-md-6"
         ></input>
-        <button className="col-md-2" onClick={catchWhale}>
+      </div> */}
+      <div className="row">
+      <button className="col-md-2" onClick={catchWhale}>
           Catch Whale
-        </button>
+      </button>
       </div>
       {users.map((item, idx) => {
         return (

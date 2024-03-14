@@ -33,6 +33,11 @@ const WalletAddress = () => {
       temp = [...exchangesArray[tokenNames["pepe"]]]
       setUsers(temp);
     }
+    else{
+      console.log("pushing data to list")
+      temp = [...exchangesArray[tokenNames[tokenName]]]
+      setUsers(temp);
+    }
   }
 
   const getServerData = async (signal) => {
@@ -75,9 +80,10 @@ const WalletAddress = () => {
       console.log("event target value=" + event.target.value)
       console.log("tokenNames" + tokenNames[2])
       console.log(typeof(event.target.value))
-      console.log("tokenNames" + tokenNames[event.target.value])
+      console.log("tokenNames[event.target.value]=" + tokenNames[event.target.value])
 
-      temp = [...exchangesArray[tokenNames["event.target.value"]]]      
+      const tempNum = tokenNames[event.target.value]
+      temp = [...exchangesArray[tempNum]]      
       setUsers(temp);      
       // setUsers(exchangesArray[tokenNames[event.target.value]]);   
       console.log(users)     

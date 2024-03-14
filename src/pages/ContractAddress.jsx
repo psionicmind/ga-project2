@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import styles from "./Address.module.css";
-import {contractAddressList, tokenNames} from "./exchangesAddress.js";
+import {exchangesArray, contractAddressList, tokenNames} from "./exchangesAddress.js";
 import LabelCom from "../components/LabelCom.jsx";
 import InputCom from "../components/InputCom.jsx";
 import ButtonCom from "../components/ButtonCom.jsx";
 
 const ContractAddress = () => {
   const [users, setUsers] = useState([]);
+  const [isFirstTimeLoading, setIsFirstTimeLoading] = useState(true)
   const addressRef = useRef();
   const tagRef = useRef();
 
@@ -15,7 +16,8 @@ const ContractAddress = () => {
   const getUserData = () => {
     console.log("getUserData @ ContractAddress.jsx");
     getLocalData()   
-    // getServerUpdate(); // airtable data
+    getServerUpdate(); // airtable data
+
   };
 
   const getLocalData = () => {
@@ -27,13 +29,36 @@ const ContractAddress = () => {
   const getServerUpdate = async (signal) => {
     console.log("getting server data from airtable")
     try {
-      const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
-        signal,
+      const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress?view=Grid%20view`
+
+      const res = await fetch(url, {
+        signal, 
+        headers:{"Authorization": `Bearer ${import.meta.env.VITE_AirtableApiToken}`}
       });
 
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        console.log(data.records.length)
+        console.log(data.records)
+
+        let name=""
+        let address=""
+        console.log("ready")
+        console.log(contractAddressList)
+        console.log("ready2")
+
+        for (const record in data.records){
+          name = data.records[record].fields.name
+          address=data.records[record].fields.address
+          console.log(name)
+          console.log(address)
+          contractAddressList.push({name: name, address: address})
+        }
+        console.log("see lah")
+        console.log(contractAddressList)
+        const temp=[...contractAddressList]
+        setUsers(temp);        
+
       }
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -48,7 +73,14 @@ const ContractAddress = () => {
     contractAddressList.push({name: tagRef.current.value, address: addressRef.current.value})
     console.log("contractAddressList=" + contractAddressList)
 
-    tokenNames.push(tagRef.current.value)
+    console.log("creating new array in exchangesArray")
+    exchangesArray.push([])
+
+
+
+    // tokenNames.push(tagRef.current.value)
+    console.log(Object.keys(tokenNames).length)
+    tokenNames[tagRef.current.value] = Object.keys(tokenNames).length // increment value
     // next will be set data to airtable for persistence storage
 
     return true;
@@ -82,7 +114,12 @@ const ContractAddress = () => {
     console.log("useEffect")
     const controller = new AbortController();
     // console.log("contractAddressList="+ JSON.stringify(contractAddressList))
-    setUsers(contractAddressList);
+    if (isFirstTimeLoading === false)
+      setUsers(contractAddressList);
+    else{
+      getUserData()
+      setIsFirstTimeLoading(false)
+    }
 
     return () => {
       controller.abort();

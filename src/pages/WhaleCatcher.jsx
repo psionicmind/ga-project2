@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import SelectOptionCom from "../components/SelectOptionCom.jsx";
-import {exchangesInShibaInuToken, exchangesInPepeToken, contractAddressList} from "./exchangesAddress.js";
+import {exchangesInShibaInuToken, exchangesInPepeToken} from "./exchangesAddress.js";
 
 const WhaleCatcher = () => {
   const [users, setUsers] = useState([]);
   const [catchingWhale, setCatchingWhale] = useState([]);
+  const [tokenAddress, setTokenAddress] = useState("0x6982508145454Ce325dDbE47a25d4ec3d2311933");  //pepe
   const [languages, setLanguages] = useState([]);
   // const contractAddressRef = useRef();
   // const walletAddressRef = useRef();
@@ -62,7 +63,7 @@ const WhaleCatcher = () => {
   const catchWhale = async () => {
     // const contractAddress = contractAddressRef.current.value;
     // const walletAddress = walletAddressRef.current.value;
-  
+    tokenName
 
     if (contractAddress != "") {
       let url = "";
@@ -99,9 +100,13 @@ const WhaleCatcher = () => {
   }
 
   const handleSelectChange = (event) => {
+    let temp=undefined
+    console.log("event.target.value at whalecatcher=" + event.target.value)    
+
+    setTokenAddress(event.target.value)
+
 
   }
-
   // const getUserData = async (signal) => {
   //   console.log("getUserData @ WhaleCatcher.jsx");
   //   try {

@@ -40,8 +40,8 @@ export let exchangesInPepeToken = [ //exchanges in pepe token 0x6982508145454Ce3
 ]  
 
 export let contractAddressList = [
-  {name: "pepe", address:"0x6982508145454Ce325dDbE47a25d4ec3d2311933"},
-  {name: "shiba inu", address:"0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"},
+  {id:"", name: "pepe", address:"0x6982508145454Ce325dDbE47a25d4ec3d2311933"},
+  {id:"", name: "shiba inu", address:"0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"},
 ]
 
 export let exchangesInShibaInuToken = [ //exchanges in shiba inu token (0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE)

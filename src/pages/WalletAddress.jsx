@@ -8,47 +8,75 @@ import ButtonCom from "../components/ButtonCom.jsx";
 import SelectOptionCom from "../components/SelectOptionCom.jsx";
 
 const WalletAddress = () => {
-  const [users, setUsers] = useState([]);
+  const [defaultAddress, setDefaultAddress] = useState([]);
+  const [userDefined, setUserDefined] = useState([]);
+
   const [tokenName, setTokenName] = useState("pepe");
   const addressRef = useRef();
   const tagRef = useRef();
   const selectedRef = useRef();
+  let userDefinedAddressList=""
 
   const getData = async (signal) => {
     // console.log("getData @ WalletAddress.jsx");
     setLocalData();    
-    // getServerData(); // airtable data
+    getServerUpdate(); // airtable data
   };
 
   const setLocalData = async () => {
-    // console.log("getting local data")
+    console.log("getting local data")
     let temp = undefined
-    if (tokenName=="shiba inu"){
-      console.log("pushing data to shiba inu list")
-      temp = [...exchangesArray[tokenNames["shiba inu"]]]
-      setUsers(temp);      
-    }
-    else if (tokenName=="pepe"){
-      console.log("pushing data to pepe list")
-      temp = [...exchangesArray[tokenNames["pepe"]]]
-      setUsers(temp);
-    }
-    else{
-      console.log("pushing data to list")
-      temp = [...exchangesArray[tokenNames[tokenName]]]
-      setUsers(temp);
-    }
+    console.log("pushing data to list")
+    temp = [...exchangesArray[tokenNames[tokenName]]]
+    setDefaultAddress(temp);
   }
 
-  const getServerData = async (signal) => {
+  const getServerUpdate = async (signal) => {
+    console.log("getting server data from airtable")
     try {
-      const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users", {
-        signal,
+      const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/exchangesInToken`
+
+      const res = await fetch(url, {
+        signal, 
+        headers:{"Authorization": `Bearer ${import.meta.env.VITE_AirtableApiToken}`}
       });
 
-      if (res.ok) {
+      if (res.ok) {        
         const data = await res.json();
-        setUsers(data);
+        // console.log(data.records.length)
+        // console.log(data.records)
+
+        let nameOfRecord=""
+        let addressOfRecord=""
+        let id=""
+        // console.log("ready")
+
+        let tempList=[]
+        for (const record in data.records){
+          const id = data.records[record].id
+          const nameOfRecord = data.records[record].fields.name
+          const addressOfRecord= data.records[record].fields.address
+          const TokenName = data.records[record].fields.TokenName
+
+          // console.log(id)
+          // console.log(nameOfRecord)
+          // console.log(addressOfRecord)
+                    
+          console.log(`tokenName=${tokenName}`)
+          if (TokenName === tokenName){
+            tempList.push({id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
+          }
+        }
+
+        console.log("see lah lah")
+        // console.log(tempList)
+        userDefinedAddressList=[...tempList]
+        console.log(JSON.stringify(userDefinedAddressList))
+
+        const temp=[...tempList]
+        // userDefinedAddressList.push({id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
+        setUserDefined(temp);        
+
       }
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -56,39 +84,47 @@ const WalletAddress = () => {
       }
     }
   }
-
   
   const handleSelectChange = (event) => {
-    let temp=undefined
-    console.log("event.target.value at walletaddress=" + event.target.value)    
-    if (event.target.value ==="shiba inu"){
-      temp = [...exchangesArray[tokenNames["shiba inu"]]]
-      setUsers(temp);
-      setTokenName("shiba inu")
-      console.log(users)      
-    }
-    else if (event.target.value ==="pepe"){
-      temp = [...exchangesArray[tokenNames["pepe"]]]      
-      setUsers(temp);      
-      setTokenName("pepe")
-      console.log(users)     
-    }
-    else{
-      setTokenName(event.target.value)
-      console.log("event target value=" + event.target.value)
-      console.log("tokenNames" + tokenNames[2])
-      console.log(typeof(event.target.value))
-      console.log("tokenNames[event.target.value]=" + tokenNames[event.target.value])
 
-      const tempNum = tokenNames[event.target.value]
-      temp = [...exchangesArray[tempNum]]      
-      setUsers(temp);      
-      console.log(users)     
-    } 
-    // next will be set data to airtable for persistence storage
+    const selectedTokenName=event.target.value
+    console.log("event.target.value at walletaddress=" + selectedTokenName )    
+    setTokenName(selectedTokenName)
+
+    console.log("tokenNames[event.target.value]=" + tokenNames[selectedTokenName])
+
+    // setLocalData
+    const temp = [...exchangesArray[tokenNames[selectedTokenName]]]      
+    console.log(temp)     
+    setDefaultAddress(temp);      
+
+    // getServerUpdate
+    // getServerUpdate()
+
     // getData()
 
   }
+
+  const addAddress = async (event) => {
+    const tag = tagRef.current.value;
+    const address = addressRef.current.value;
+
+    console.log(`tagRef.current.value=${tagRef.current.value}`)
+    console.log(`addressRef.current.value=${addressRef.current.value}`)
+
+    if (address != "") {
+      if (setDataToAirTable()) {
+        getServerUpdate(); // since addAddress is for user defined data, we only get update from server
+        tagRef.current.value = "";
+        addressRef.current.value = "";
+      } else {
+        console.log("an error has occurred");
+      }
+    } else {
+      console.log("wrong entry, check again");
+    }
+  };
+
 
   const setDataToAirTable = () => {
     console.log("setDataToAirTable")
@@ -105,42 +141,73 @@ const WalletAddress = () => {
       console.log(`pushing data to exchangesArray[tokenNames["?"]]`)
       exchangesArray[tokenNames[tokenName]].push({name: tagRef.current.value, address: addressRef.current.value})
     }
-
-    // next will be set data to airtable for persistence storage
+    console.log(exchangesArray[tokenNames[tokenName]])
+    
+    createRecordInServer();
 
     return true;
   }
 
-  const addAddress = async (event) => {
-    const tag = tagRef.current.value;
-    const address = addressRef.current.value;
+  const createRecordInServer = async (signal) => {
+    try {
+      const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/exchangesInToken`     
 
-    console.log(`tagRef.current.value=${tagRef.current.value}`)
-    console.log(`addressRef.current.value=${addressRef.current.value}`)
+      const res = await fetch(url, {
+        signal, 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_AirtableApiToken}`,
+        },
+        body: JSON.stringify({
+          "records": [
+            {
+              "fields": {
+                "TokenName":`${tokenName}`,
+                "name": `${tagRef.current.value}`,
+                "address": `${addressRef.current.value}`
+              }
+            }            
+          ]
+        }),        
+      });
 
-    if (address != "") {
-      if (setDataToAirTable()) {
-        getServerData();
-        tagRef.current.value = "";
-        addressRef.current.value = "";
-      } else {
-        console.log("an error has occurred");
+      if (res.ok) {
+        console.log("saved new wallet address to server")
+        // let tempList=[...userDefined, {id:"", name: `${tagRef.current.value}`, address: `${addressRef.current.value}`}]
+        // userDefinedAddressList = [...tempList]
+        // setUserDefined(tempList);        
+
       }
-    } else {
-      console.log("wrong entry, check again");
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.log(error.message);
+      }
     }
-  };
+  }
+
 
   useEffect(() => {
     const controller = new AbortController();
-    // getUserData(controller.signal);
-    setUsers(exchangesArray[tokenNames["pepe"]]);
+    getData(controller.signal);
+    // setDefaultAddress(exchangesArray[tokenNames["pepe"]]);
+    // setUserDefined(exchangesArray[tokenNames["pepe"]])
 
     return () => {
       controller.abort();
     };
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    console.log("useEffect tokenName=")
+    console.log(tokenName)
+    getServerUpdate()
+
+    return () => {
+      controller.abort();
+    };
+  }, [tokenName]);
 
   return (
     <div className="container">
@@ -174,18 +241,33 @@ const WalletAddress = () => {
 
 
       <br/>
-      {users.map((item, idx) => {
+      {(defaultAddress.length!=0) && (<LabelCom>Default Exchange Address</LabelCom>)?"Default Exchange Address":"There is no Default Exchange Address"}      
+      {defaultAddress.map((item, idx) => {
         return (
           <Address
             key={idx}
-            id={item.id}
+            // id={item.id}
             name={item.name}
             address={item.address}
-            getData={getData}
+            getData={setLocalData}
           />
         );
       })}
       <br />
+      {(userDefined.length!=0) && (<LabelCom>User Defined Exchange Address</LabelCom>)?"User Defined Exchange Address":"There is no User Defined Exchange Address"}
+      {userDefined.map((item, idx) => {
+        return (
+          <Address
+            key={idx}
+            // id={item.id}
+            name={item.name}
+            address={item.address}
+            getData={getServerUpdate}
+          />
+        );
+      })}
+      <br />
+
       <br />
     </div>
   );

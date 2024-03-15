@@ -4,6 +4,11 @@ import UpdateUserModal from "./UpdateUserModal";
 
 const Address = (props) => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  // const [showDeleteButton, setShowDeleteButton]= useState(false);
+  // const [showUpdateButton, setShowUpdateButton]= useState(false);
+
+  // console.log(props.isShowDeleteButton);
+  // setShowDeleteButton(props.isShowDeleteButton);
 
   const deleteUser = async () => {
     console.log(`props.id=${props.id}`);
@@ -18,7 +23,7 @@ const Address = (props) => {
     });
 
     if (res.ok) {
-      props.getUserData();
+      props.getData();
     }
   };
 
@@ -37,7 +42,7 @@ const Address = (props) => {
         <div className="col-sm-1">{props.id}</div>
         <div className="col-sm-2">{props.name}</div>
         <div className="col-sm-6">{props.address}</div>
-        {/* <button className="col-sm-1" onClick={deleteUser}>delete</button> //icebox
+        {/* <button className="col-sm-1" onClick={deleteUser}>delete</button>
         <button className="col-sm-1" onClick={() => setShowUpdateModal(true)}>update</button> */}
       </div>
     </>

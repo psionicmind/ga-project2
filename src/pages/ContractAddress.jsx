@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef} from "react";
 import Address from "./Address";
-import styles from "./Address.module.css";
 import {exchangesArray, contractAddressList, tokenNames} from "./exchangesAddress.js";
 import LabelCom from "../components/LabelCom.jsx";
 import InputCom from "../components/InputCom.jsx";
 import ButtonCom from "../components/ButtonCom.jsx";
+export let userDefinedAddressList = []
+
 
 const ContractAddress = () => {
   const [local, setLocal] = useState([]);
@@ -13,7 +14,7 @@ const ContractAddress = () => {
   const addressRef = useRef();
   const tagRef = useRef();
 
-
+  
   const getData = () => {
     console.log("getData @ ContractAddress.jsx");
     getLocalData()   
@@ -52,8 +53,11 @@ const ContractAddress = () => {
 
       if (res.ok) {
 
-        let tempList=[...userDefined, {name: `${tagRef.current.value}`, address: `${addressRef.current.value}`}]
-        setUserDefined(tempList);        
+        let tempList=[...userDefined, {id:"", name: `${tagRef.current.value}`, address: `${addressRef.current.value}`}]
+        userDefinedAddressList = [...tempList]
+
+        const temp=[...tempList]
+        setUserDefined(temp);        
 
       }
     } catch (error) {
@@ -63,38 +67,54 @@ const ContractAddress = () => {
     }
   }
 
+
+  const getOfflineServerData = ()=> {
+    const temp=[...userDefined]
+    userDefinedAddressList=[...temp]
+    setUserDefined(temp)
+  }
+
+
   const getServerUpdate = async (signal) => {
     console.log("getting server data from airtable")
     try {
-      const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress?view=Grid%20view`
+      const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`
 
       const res = await fetch(url, {
         signal, 
         headers:{"Authorization": `Bearer ${import.meta.env.VITE_AirtableApiToken}`}
       });
 
-      if (res.ok) {
-        console.log("await res.json")
+      if (res.ok) {        
         const data = await res.json();
-        console.log("data.records.length ")
-        console.log(data.records.length)
-        console.log(data.records)
+        // console.log(data.records.length)
+        // console.log(data.records)
 
         let nameOfRecord=""
         let addressOfRecord=""
-        console.log("ready")
+        let id=""
+        // console.log("ready")
 
         let tempList=[]
         for (const record in data.records){
+          id = data.records[record].id
           nameOfRecord = data.records[record].fields.name
           addressOfRecord=data.records[record].fields.address
-          console.log(nameOfRecord)
-          console.log(addressOfRecord)
-          tempList.push({name: `${nameOfRecord}`, address: `${addressOfRecord}`})
+
+          // console.log(id)
+          // console.log(nameOfRecord)
+          // console.log(addressOfRecord)
+          tempList.push({id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
         }
 
         console.log("see lah")
-        setUserDefined(tempList);        
+        console.log(tempList)
+        userDefinedAddressList=[...tempList]
+        console.log(userDefinedAddressList)
+
+        const temp=[...tempList]
+
+        setUserDefined(temp);        
 
       }
     } catch (error) {
@@ -152,10 +172,12 @@ const ContractAddress = () => {
     const controller = new AbortController();
 
     if (isFirstTimeLoading === false){
+      console.log("******************not first time loading")
       getData()
     }
     else{
       //first time loading
+      console.log("+++++++++++++++++++first time loading")
       getData()
       setIsFirstTimeLoading(false)
     }
@@ -211,7 +233,7 @@ const ContractAddress = () => {
         return (
           <Address
             key={idx}
-            id={item.id}
+            // id={item.id}
             name={item.name}
             address={item.address}
             getData={getServerUpdate}

@@ -32,7 +32,7 @@ const SelectOptionCom = (props) => {
     const getServerUpdate = async (signal) => {
         console.log("gett server data from airtable:SelectOption")
         try {
-          const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress?view=Grid%20view`
+          const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`
     
           const res = await fetch(url, {
             signal, 
@@ -53,7 +53,7 @@ const SelectOptionCom = (props) => {
                 nameOfRecord = data.records[record].fields.name
                 addressOfRecord=data.records[record].fields.address
 
-                temp.push({id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
+                temp.push(             {id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
                 tempList=[...tempList, {id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`}]
 
                 console.log("adding user defined contract address to array")
@@ -92,10 +92,10 @@ const SelectOptionCom = (props) => {
                 return (
                 <option
                     key={idx}
-                    id={item.id}
+                    data-id={item.id}
                     value={item.name}
-                    name={item.name}
-                    address={item.address}
+                    data-name={item.name}
+                    data-address={item.address}
                     // getUserData={getUserData}
                 >{item.name}</option>
                 );

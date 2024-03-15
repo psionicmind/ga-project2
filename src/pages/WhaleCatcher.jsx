@@ -2,15 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
 import SelectOptionCom from "../components/SelectOptionCom.jsx";
 import {exchangesInShibaInuToken, exchangesInPepeToken} from "./exchangesAddress.js";
+import ButtonCom from "../components/ButtonCom.jsx";
 
 const WhaleCatcher = () => {
-  const [users, setUsers] = useState([]);
+  const [offloadingWhale, setOffloadingWhale] = useState([]);
   const [catchingWhale, setCatchingWhale] = useState([]);
   const [tokenAddress, setTokenAddress] = useState("0x6982508145454Ce325dDbE47a25d4ec3d2311933");  //pepe
-  const [languages, setLanguages] = useState([]);
-  // const contractAddressRef = useRef();
-  // const walletAddressRef = useRef();
-  const selectedRef = useRef();
+  // const selectedRef = useRef();
   
   
 
@@ -18,39 +16,45 @@ const WhaleCatcher = () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function runLoopFunction(data, contractAddress){
-    let tokenAddress = "";
+  function runLoopFunction(){
+    let exchangeAddresses = "";
+    const contractAddress=tokenAddress
 
     if (contractAddress ==="0x6982508145454Ce325dDbE47a25d4ec3d2311933"){
-      console.log("checking against pepe's exchange")
-      tokenAddress=exchangesInShibaInuToken
-      console.log(`tokenAddress= ${JSON.stringify(tokenAddress)}`)
+      // console.log("checking against pepe's exchange")
+      exchangeAddresses=exchangesInShibaInuToken
+      // console.log(`exchangeAddresses= ${JSON.stringify(exchangeAddresses)}`)
     }
     else if (contractAddress ==="0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"){
-      console.log("checking against shiba inu's exchange")
-      tokenAddress=exchangesInPepeToken
-      console.log(`tokenAddress= ${JSON.stringify(tokenAddress)}`)
+      // console.log("checking against shiba inu's exchange")
+      exchangeAddresses=exchangesInPepeToken
+      // console.log(`exchangeAddresses= ${JSON.stringify(exchangeAddresses)}`)
     }
 
-    loopFunction(data, tokenAddress)    
+    loopFunction(exchangeAddresses)    
   }
 
-  function loopFunction(data, tokenAddress) {
+  function loopFunction(tokenAddress) {
     sleep(1000).then(() => {
-      IsToAddressAnExchange(data, tokenAddress)
-      loopFunction(data, tokenAddress);
+      catchWhale()
+      // IsToAddressAnExchange(catchingWhale, tokenAddress)
+      loopFunction(tokenAddress);
     });
   }
 
   const IsToAddressAnExchange = (data, tokenAddress) => {
-    // console.log("data = " + JSON.stringify(data))    
+    console.log("data = " + JSON.stringify(data))    
     // console.log("exchange   =  " + Object.values(exchangesInPepeToken))
     for (const datum in data["result"]){
       // console.log(`data["result"][datum]=${data["result"][datum].confirmations}`)
+      // console.log("datum")
+      // console.log(datum + " " +data["result"][datum].to)          
+      console.log(JSON.stringify(data["result"][datum]))          
       if (data["result"][datum].confirmations <=200){ // don't take too long ago data
           // console.log(datum + " " +data["result"][datum].to)          
           if (Object.values(tokenAddress).includes(data["result"][datum].to)){
               console.log("token sent to exchange!" + data["result"][datum].to)
+              setOffloadingWhale(data["result"][datum])
               return true;
           }
       }
@@ -59,20 +63,24 @@ const WhaleCatcher = () => {
     // console.log("Whale haven't send token to any exchange")
     return false;
 }
-  
+
   const catchWhale = async () => {
     // const contractAddress = contractAddressRef.current.value;
     // const walletAddress = walletAddressRef.current.value;
-    tokenName
+    // console.log("catching whale...............")
+    // console.log(`tokenAddress=${tokenAddress}`)
 
+    const contractAddress=tokenAddress
+    // console.log(`contractAddress=${contractAddress}`)
+    const totalPage=100
+    
     if (contractAddress != "") {
       let url = "";
-      if (walletAddress === ""){
-          url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&page=1&offset=20&startblock=0&endblock=99999999&sort=desc&apikey=${import.meta.env.VITE_YourApiKeyToken}`  
-      }
-      else
-        url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&address=${walletAddress}&page=1&offset=20&startblock=0&endblock=99999999&sort=desc&apikey=${import.meta.env.VITE_YourApiKeyToken}`
-      // url ="https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=0xdac17f958d2ee523a2206206994597c13d831ec7&address=0xdfd5293d8e347dfe59e90efd55b2956a1343963d&page=1&offset=100&startblock=0&endblock=99999999&sort=desc&apikey=" + import.meta.env.VITE_YourApiKeyToken
+      url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&page=1&offset=${totalPage}&startblock=0&endblock=99999999&sort=desc&apikey=${import.meta.env.VITE_YourApiKeyToken}`  
+      // url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&address=${walletAddress}&page=1&offset=20&startblock=0&endblock=99999999&sort=desc&apikey=${import.meta.env.VITE_YourApiKeyToken}`
+      
+      // console.log(url)
+
       // const res = await fetch(url, {
       //   method: "GET",
       //   headers: {
@@ -85,12 +93,41 @@ const WhaleCatcher = () => {
         // getUserData();
         let data = await res.json();
         setCatchingWhale(data);
+        // console.log(`data=${JSON.stringify(data)}`)
 
-        runLoopFunction(data, contractAddress)
+
+        // console.log("data = " + JSON.stringify(data))    
+        // console.log("exchange   =  " + Object.values(exchangesInPepeToken))
+        for (const datum in data["result"]){
+          // console.log(`data["result"][datum]=${data["result"][datum].confirmations}`)
+          // console.log("datum")
+          // console.log(datum + " " +data["result"][datum].to)          
+          console.log(JSON.stringify(data["result"][datum]))          
+          const date = new Date(data["result"][datum].timeStamp);
+          console.log(date);
+          console.log(`${data["result"][datum].value}`)
+          console.log(`${data["result"][datum].tokenDecimal}`)
+          const decimalValue= (1/(Math.pow(10,6)))
+          console.log(decimalValue)
+          const amount=decimalValue*data["result"][datum].value
+          console.log(amount)
+
+          if (data["result"][datum].confirmations <=20){ // don't take too long ago data
+              console.log(datum + " " +data["result"][datum].to)          
+              if (Object.values(tokenAddress).includes(data["result"][datum].to)){
+                  console.log("token sent to exchange!" + data["result"][datum].to)
+                  setOffloadingWhale(data["result"][datum])                  
+              }
+          }
+        }
+        console.log(".")
 
 
-        // contractAddressRef.current.value = "";
-        // walletAddressRef.current.value = "";
+
+
+
+
+
       } else {
         console.log("an error has occurred");
       }
@@ -100,12 +137,15 @@ const WhaleCatcher = () => {
   }
 
   const handleSelectChange = (event) => {
-    let temp=undefined
-    console.log("event.target.value at whalecatcher=" + event.target.value)    
+    console.log("select change ........................")
 
-    setTokenAddress(event.target.value)
+    // const selectedOptionData = event.target.options[event.target.selectedIndex]
+    // console.log(selectedOptionData)
 
+    const address = event.target.options[event.target.selectedIndex].dataset.address
+    console.log(address)
 
+    setTokenAddress(address)    
   }
   // const getUserData = async (signal) => {
   //   console.log("getUserData @ WhaleCatcher.jsx");
@@ -150,15 +190,21 @@ const WhaleCatcher = () => {
           className="col-md-6"
         ></input>
       </div> */}
-      <div>
-        <SelectOptionCom 
-          className="row"
-          reference={selectedRef} 
+      <div className="row">
+      <ButtonCom handleBtnClick={runLoopFunction}>
+          Catch Whale
+      </ButtonCom>
+      </div>
+      <br/>
+      <div className="row">
+        <SelectOptionCom id="tokenSelect"
+          // reference={selectedRef} 
           optionPattern="contractAddress"
           onSelect={handleSelectChange}
         >
         </SelectOptionCom>
       </div>
+
       {/* <div className="row">
         <label>0x28C6c06298d514Db089934071355E5743bf21d60</label>
         <input
@@ -169,12 +215,7 @@ const WhaleCatcher = () => {
           className="col-md-6"
         ></input>
       </div> */}
-      <div className="row">
-      <button className="col-md-2" onClick={catchWhale}>
-          Catch Whale
-      </button>
-      </div>
-      {users.map((item, idx) => {
+      {offloadingWhale.map((item, idx) => {
         return (
           <Address
             key={idx}

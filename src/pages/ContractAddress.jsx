@@ -8,7 +8,7 @@ export let userDefinedAddressList = []
 
 
 const ContractAddress = () => {
-  const [local, setLocal] = useState([]);
+  const [defaultAddress, setDefaultAddress] = useState([]);
   const [userDefined, setUserDefined] = useState([]);
   const [isFirstTimeLoading, setIsFirstTimeLoading] = useState(true)
   const addressRef = useRef();
@@ -25,7 +25,7 @@ const ContractAddress = () => {
   const getLocalData = () => {
     console.log("getting local data")
     const temp=[...contractAddressList]
-    setLocal(temp);
+    setDefaultAddress(temp);
   }
 
   const createRecordInServer = async (signal) => {
@@ -216,7 +216,7 @@ const ContractAddress = () => {
       <br/>
       
       <LabelCom>Local Contract Address</LabelCom>
-      {local.map((item, idx) => {
+      {defaultAddress.map((item, idx) => {
         return (
           <Address
             key={idx}

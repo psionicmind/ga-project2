@@ -220,7 +220,7 @@ const ContractAddress = () => {
         return (
           <Address
             key={idx}
-            id={item.id}
+            // id={item.id}
             name={item.name}
             address={item.address}
             getData={getLocalData}

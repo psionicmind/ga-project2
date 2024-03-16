@@ -17,20 +17,20 @@ const SelectOptionCom = (props) => {
         // console.log("entered loadOptions")
         // console.log(`props.optionPattern=${props.optionPattern}`)
         if (props.optionPattern ==="contractAddress"){
-            console.log("contract address loading.....")
+            // console.log("contract address loading.....")
             const result= getServerUpdate()
-            console.log("result=")
-            console.log(result)
+            // console.log("result=")
+            // console.log(result)
 
 
-            console.log("before setOption")
-            console.log(select_userDefinedAddressList)
+            // console.log("before setOption")
+            // console.log(select_userDefinedAddressList)
             // setOptions(select_userDefinedAddressList)        
         }
     }
 
     const getServerUpdate = async (signal) => {
-        console.log("gett server data from airtable:SelectOption")
+        // console.log("gett server data from airtable:SelectOption")
         try {
           const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`
     
@@ -56,16 +56,16 @@ const SelectOptionCom = (props) => {
                 temp.push(             {id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
                 tempList=[...tempList, {id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`}]
 
-                console.log("adding user defined contract address to array")
+                // console.log("adding user defined contract address to array")
                 if (tokenNames[nameOfRecord] ===undefined){
                     exchangesArray.push([])
 
-                    console.log(Object.keys(tokenNames).length)
+                    // console.log(Object.keys(tokenNames).length)
                     tokenNames[nameOfRecord] = Object.keys(tokenNames).length // increment value                    
                 }
             }
 
-            console.log(tempList)       
+            // console.log(tempList)       
             setOptions(tempList)                
     
           }

@@ -36,7 +36,8 @@ export let exchangesInPepeToken = [ //exchanges in pepe token 0x6982508145454Ce3
   {name: "bitfinex.hot", address: "0x77134cbC06cB00b66F4c7e623D5fdBF6777635EC"},
   {name: "coindcx2", address: "0x2407b9B9662d970ecE2224A0403D3B15c7e4D1FE"},
   {name: "bitfinex2", address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"},
-  {name: "test", address: "0x3d8fc1cffaa110f7a7f9f8bc237b73d54c4abf61"},
+  {name: "test1", address: "0xa43fe16908251ee70ef74718545e4fe6c5ccec9f"},
+  {name: "test2", address: "0x6edf968da408a9640b8865826429a977a11c5048"},
 ]  
 
 export let contractAddressList = [

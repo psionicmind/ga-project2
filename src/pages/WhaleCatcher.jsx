@@ -3,11 +3,18 @@ import Address from "./Address";
 import SelectOptionCom from "../components/SelectOptionCom.jsx";
 import {exchangesInShibaInuToken, exchangesInPepeToken} from "./exchangesAddress.js";
 import ButtonCom from "../components/ButtonCom.jsx";
+import LabelCom from "../components/LabelCom.jsx";
 
 const WhaleCatcher = () => {
   const [offloadingWhale, setOffloadingWhale] = useState([]);
   const [catchingWhale, setCatchingWhale] = useState([]);
+
+  const [stopLoop, setStopLoop] = useState(false);
+
   const [tokenAddress, setTokenAddress] = useState("0x6982508145454Ce325dDbE47a25d4ec3d2311933");  //pepe
+  const [tokenSymbol, setTokenSymbol] = useState("PEPE");
+  const [tokenPrice, setTokenPrice] = useState(0.0);
+
   // const selectedRef = useRef();
   
   
@@ -16,55 +23,81 @@ const WhaleCatcher = () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  function stopLoopFunction(){
+    console.log("stop loop")
+    setStopLoop(true)
+  }
+  
   function runLoopFunction(){
-    let exchangeAddresses = "";
+    setStopLoop(false)
+    let exchangeAddressesOnly = "";
+    let exchangesAddress = "";
     const contractAddress=tokenAddress
 
     if (contractAddress ==="0x6982508145454Ce325dDbE47a25d4ec3d2311933"){
       // console.log("checking against pepe's exchange")
-      exchangeAddresses=exchangesInShibaInuToken
-      // console.log(`exchangeAddresses= ${JSON.stringify(exchangeAddresses)}`)
+      exchangesAddress=exchangesInPepeToken
+      exchangeAddressesOnly=Object.values(exchangesInPepeToken).map(function(d){
+        return d["address"]        
+      })
+
+      console.log(`runLoopFunction exchangeAddresses= ${JSON.stringify(exchangeAddressesOnly)}`)
     }
     else if (contractAddress ==="0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"){
       // console.log("checking against shiba inu's exchange")
-      exchangeAddresses=exchangesInPepeToken
-      // console.log(`exchangeAddresses= ${JSON.stringify(exchangeAddresses)}`)
+      exchangesAddress=exchangesInShibaInuToken
+      exchangeAddressesOnly=Object.values(exchangesInShibaInuToken).map(function(d){
+        return d["address"]
+      })
+      console.log(`runLoopFunction exchangeAddresses= ${JSON.stringify(exchangeAddressesOnly)}`)
     }
 
-    loopFunction(exchangeAddresses)    
+    console.log(`tokenPrice=${tokenPrice}`)
+    loopFunction(tokenPrice, 0,exchangeAddressesOnly, exchangesAddress)    
   }
 
-  function loopFunction(tokenAddress) {
+  function loopFunction(price, counter, address, exchangesAddress) {
+    // console.log(`loopFunction price=${price}`)
     sleep(1000).then(() => {
-      catchWhale()
-      // IsToAddressAnExchange(catchingWhale, tokenAddress)
-      loopFunction(tokenAddress);
+      // console.log(`stopLoop................=${stopLoop}`)
+      counter++
+      if (counter >=60){
+        counter=0
+        // price=cmcPriceApi(tokenSymbol)
+      }
+
+      if (stopLoop===false){
+        catchWhale(price, address, exchangesAddress)
+        loopFunction(price, counter, address, exchangesAddress);
+      }
+      else
+        return
     });
   }
 
-  const IsToAddressAnExchange = (data, tokenAddress) => {
-    console.log("data = " + JSON.stringify(data))    
-    // console.log("exchange   =  " + Object.values(exchangesInPepeToken))
-    for (const datum in data["result"]){
-      // console.log(`data["result"][datum]=${data["result"][datum].confirmations}`)
-      // console.log("datum")
-      // console.log(datum + " " +data["result"][datum].to)          
-      console.log(JSON.stringify(data["result"][datum]))          
-      if (data["result"][datum].confirmations <=200){ // don't take too long ago data
-          // console.log(datum + " " +data["result"][datum].to)          
-          if (Object.values(tokenAddress).includes(data["result"][datum].to)){
-              console.log("token sent to exchange!" + data["result"][datum].to)
-              setOffloadingWhale(data["result"][datum])
-              return true;
-          }
-      }
-    }
-    console.log(".")
-    // console.log("Whale haven't send token to any exchange")
-    return false;
-}
+//   const IsToAddressAnExchange = (data, exchangesAdd) => {
+//     console.log("data = " + JSON.stringify(data))    
+//     // console.log("exchange   =  " + Object.values(exchangesInPepeToken))
+//     for (const datum in data["result"]){
+//       // console.log(`data["result"][datum]=${data["result"][datum].confirmations}`)
+//       // console.log("datum")
+//       // console.log(datum + " " +data["result"][datum].to)          
+//       console.log(JSON.stringify(data["result"][datum]))          
+//       if (data["result"][datum].confirmations <=200){ // don't take too long ago data
+//           // console.log(datum + " " +data["result"][datum].to)          
+//           if (Object.values(exchangesAdd).includes(data["result"][datum].to)){
+//               console.log("token sent to exchange!" + data["result"][datum].to)
+//               setOffloadingWhale(data["result"][datum])
+//               return true;
+//           }
+//       }
+//     }
+//     console.log(".")
+//     // console.log("Whale haven't send token to any exchange")
+//     return false;
+// }
 
-  const catchWhale = async () => {
+  const catchWhale = async (price, exchangesAdd, exchangesAddress) => {
     // const contractAddress = contractAddressRef.current.value;
     // const walletAddress = walletAddressRef.current.value;
     // console.log("catching whale...............")
@@ -72,7 +105,7 @@ const WhaleCatcher = () => {
 
     const contractAddress=tokenAddress
     // console.log(`contractAddress=${contractAddress}`)
-    const totalPage=100
+    const totalPage=20
     
     if (contractAddress != "") {
       let url = "";
@@ -99,34 +132,88 @@ const WhaleCatcher = () => {
         // console.log("data = " + JSON.stringify(data))    
         // console.log("exchange   =  " + Object.values(exchangesInPepeToken))
         for (const datum in data["result"]){
+          const toAddress = data["result"][datum].to
           // console.log(`data["result"][datum]=${data["result"][datum].confirmations}`)
           // console.log("datum")
           // console.log(datum + " " +data["result"][datum].to)          
-          console.log(JSON.stringify(data["result"][datum]))          
-          const date = new Date(data["result"][datum].timeStamp);
-          console.log(date);
-          console.log(`${data["result"][datum].value}`)
-          console.log(`${data["result"][datum].tokenDecimal}`)
-          const decimalValue= (1/(Math.pow(10,6)))
-          console.log(decimalValue)
-          const amount=decimalValue*data["result"][datum].value
-          console.log(amount)
+          // console.log(JSON.stringify(data["result"][datum]))          
 
-          if (data["result"][datum].confirmations <=20){ // don't take too long ago data
-              console.log(datum + " " +data["result"][datum].to)          
-              if (Object.values(tokenAddress).includes(data["result"][datum].to)){
-                  console.log("token sent to exchange!" + data["result"][datum].to)
-                  setOffloadingWhale(data["result"][datum])                  
+          // const date = new Date(data["result"][datum].timeStamp);
+          // console.log(date);
+
+          // console.log(`data["result"][datum].value=${data["result"][datum].value}`)
+          const tokenDecimal= data["result"][datum].tokenDecimal
+          // console.log(`tokenDecimal=${tokenDecimal}`)
+          const decimalValue= (1.0/(Math.pow(10,tokenDecimal)))
+          // console.log(`decimalValue=${decimalValue}`)
+          // console.log(`Object.values(exchangesAdd) = `)
+          // console.log(Object.values(exchangesAdd))
+          // console.log(`typeof offloadingWhale=${typeof(offloadingWhale)}`)
+          // console.log(`offloadingWhale[0]=${JSON.stringify(offloadingWhale)}`)
+
+          if (data["result"][datum].confirmations <=200){ // don't take too long ago data
+
+              
+              console.log(datum + " " + toAddress)          
+              // console.log(`exchangesAdd=${JSON.stringify(exchangesAdd)}`)          
+
+              if (Object.values(exchangesAdd).includes(toAddress)){
+                console.log(`from=${data["result"][datum].from}`)
+                // AMOUNT
+                let amountInQty=decimalValue*data["result"][datum].value
+                amountInQty = amountInQty.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                // console.log(`$${(Math.round(amount * 100) / 100).toFixed(2)}`)
+                data["result"][datum].amountInQty= amountInQty;
+                console.log(`${amountInQty} qty of ${data["result"][datum].tokenName} tokens`)
+
+                console.log(`price=${price}`)
+                let sumInDollar=price*amountInQty
+
+
+
+
+
+
+
+
+
+
+
+                sumInDollar=0    // always gives NaN
+
+
+
+
+
+
+
+
+
+
+                // console.log(`sumInDollar=${sumInDollar}`)
+                data["result"][datum].sumInDollar= sumInDollar;
+
+                // NAME OF EXCHANGE BEING SENT TO (CAN SHORT IN ANY EXCHANGES, FYI ONLY)
+                const indexAdd=Object.values(exchangesAdd).indexOf(toAddress)
+                const targetedExchangeName=exchangesAddress[indexAdd].name
+                console.log(`indexAdd=${indexAdd}`)
+                console.log(`targetedExchangeName=${targetedExchangeName}`)
+                data["result"][datum].targetedExchangeName= targetedExchangeName;
+
+
+                // console.log("token sent to exchange!" + data["result"][datum].to)
+                // console.log(`data["result"][datum]= ${JSON.stringify(data["result"][datum])}`)                   
+                const temp=[]
+                temp.push(data["result"][datum])
+                setOffloadingWhale(temp)
+                // console.log(`offloadingWhale[0]=${JSON.stringify(offloadingWhale[0])}`)
               }
+              // else{
+              //   console.log("x")
+              // }
           }
         }
-        console.log(".")
-
-
-
-
-
-
+        console.log("o")
 
       } else {
         console.log("an error has occurred");
@@ -134,6 +221,51 @@ const WhaleCatcher = () => {
     } else {
       console.log("wrong entry, check again");
     }  
+  } // end of catchWhale
+
+  const cmcPriceApi = async (contractName) => {
+
+    if (contractName != "") {
+      let url = "";
+      url= `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?symbol=${contractName}`
+      
+      const res = await fetch(url, {
+        method: "GET",
+        // cors: { origin: "*" },
+        headers: {
+          "X-CMC_PRO_API_KEY": `${import.meta.env.VITE_CMC_PRO_API_KEY}`,
+        },        
+      });
+
+      if (res.ok) {
+        let data = await res.json();
+        let price=0.0
+
+        for(const eachToken in data["data"][tokenName]){
+          if (data["data"][tokenName][eachToken]["platform"]["token_address"]==tokenAddress){
+            price=data["data"][tokenName][eachToken]["quote"]["USD"]["price"]  
+            console.log(`price=${price}`)
+            return price
+          }
+          console.log(".")
+        }
+
+        console.log("o")
+
+      } else {
+        console.log("an error has occurred");
+      }
+    } else {
+      console.log("wrong entry, check again");
+    }  
+  } // end of cmcPriceApi
+
+  
+
+  
+  const getOffLoadingWhaleData = () => {
+    const temp=[...offloadingWhale]
+    setOffloadingWhale(temp)
   }
 
   const handleSelectChange = (event) => {
@@ -142,10 +274,17 @@ const WhaleCatcher = () => {
     // const selectedOptionData = event.target.options[event.target.selectedIndex]
     // console.log(selectedOptionData)
 
+    const name = event.target.options[event.target.selectedIndex].dataset.name
+    console.log(name)
+
     const address = event.target.options[event.target.selectedIndex].dataset.address
     console.log(address)
-
-    setTokenAddress(address)    
+    
+    setTokenSymbol(name)    
+    setTokenAddress(address)
+    // const price= cmcPriceApi(name)
+    // console.log(`price=${price}`)
+    // setTokenPrice(price)
   }
   // const getUserData = async (signal) => {
   //   console.log("getUserData @ WhaleCatcher.jsx");
@@ -176,6 +315,19 @@ const WhaleCatcher = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   const controller = new AbortController();
+  //   console.log(`useEffect stopLoop=${stopLoop}`)
+  //   if (stopLoop===true){
+  //     setStopLoop(true)
+  //   }
+
+  //   return () => {
+  //     // console.log("useEffect return");
+  //     controller.abort();
+  //   };
+  // }, [stopLoop]);
+
   return (
     <div className="container">
       <h1>Whale Catcher</h1>
@@ -194,7 +346,11 @@ const WhaleCatcher = () => {
       <ButtonCom handleBtnClick={runLoopFunction}>
           Catch Whale
       </ButtonCom>
+      <ButtonCom handleBtnClick={stopLoopFunction}>
+          Stop Loop
+      </ButtonCom>
       </div>
+
       <br/>
       <div className="row">
         <SelectOptionCom id="tokenSelect"
@@ -204,7 +360,7 @@ const WhaleCatcher = () => {
         >
         </SelectOptionCom>
       </div>
-
+      {(stopLoop===true) && (<LabelCom>stop</LabelCom>)}
       {/* <div className="row">
         <label>0x28C6c06298d514Db089934071355E5743bf21d60</label>
         <input
@@ -219,11 +375,13 @@ const WhaleCatcher = () => {
         return (
           <Address
             key={idx}
-            id={item.id}
-            name={item.name}
-            age={item.age}
-            country={item.country}
-            // getUserData={getUserData}
+            // id={item.id}
+            name={item.tokenName}
+            address={item.from}
+            targetedExchangeName={item.targetedExchangeName}            
+            // amountInQty={item.amountInQty}
+            sumInDollar={item.sumInDollar}
+            getData={getOffLoadingWhaleData}
           />
         );
       })}

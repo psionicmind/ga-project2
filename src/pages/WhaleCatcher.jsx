@@ -52,18 +52,29 @@ const WhaleCatcher = () => {
       console.log(`runLoopFunction exchangeAddresses= ${JSON.stringify(exchangeAddressesOnly)}`)
     }
 
-    console.log(`tokenPrice=${tokenPrice}`)
-    loopFunction(tokenPrice, 0,exchangeAddressesOnly, exchangesAddress)    
+    // console.log(`tokenPrice=${tokenPrice}`)
+    // console.log(`runLoopFunction contractAddress=${contractAddress}`)
+    const price=coingeckoPriceApi(contractAddress)
+    // console.log(`runLoopFunction price=${JSON.stringify(price)}`)
+    setTokenPrice(price)
+
+    loopFunction(price, 0,exchangeAddressesOnly, exchangesAddress)    
   }
 
   function loopFunction(price, counter, address, exchangesAddress) {
-    // console.log(`loopFunction price=${price}`)
+    // console.log(`loopFunction price=${JSON.stringify(price)}`)
+    // console.log(price)
     sleep(1000).then(() => {
       // console.log(`stopLoop................=${stopLoop}`)
       counter++
-      if (counter >=60){
+      if (counter >=5){
         counter=0
-        // price=cmcPriceApi(tokenSymbol)
+
+        // console.log(`counter tokenPrice=${tokenPrice}`)
+        // console.log(`counter tokenAddress=${tokenAddress}`)
+        price=coingeckoPriceApi(tokenAddress)
+        // console.log(`counter price=${JSON.stringify(price)}`)
+        setTokenPrice(price)
       }
 
       if (stopLoop===false){
@@ -133,6 +144,8 @@ const WhaleCatcher = () => {
         // console.log("exchange   =  " + Object.values(exchangesInPepeToken))
         for (const datum in data["result"]){
           const toAddress = data["result"][datum].to
+
+
           // console.log(`data["result"][datum]=${data["result"][datum].confirmations}`)
           // console.log("datum")
           // console.log(datum + " " +data["result"][datum].to)          
@@ -154,7 +167,7 @@ const WhaleCatcher = () => {
           if (data["result"][datum].confirmations <=200){ // don't take too long ago data
 
               
-              console.log(datum + " " + toAddress)          
+              // console.log(datum + " " + toAddress)          
               // console.log(`exchangesAdd=${JSON.stringify(exchangesAdd)}`)          
 
               if (Object.values(exchangesAdd).includes(toAddress)){
@@ -166,7 +179,7 @@ const WhaleCatcher = () => {
                 data["result"][datum].amountInQty= amountInQty;
                 console.log(`${amountInQty} qty of ${data["result"][datum].tokenName} tokens`)
 
-                console.log(`price=${price}`)
+                console.log(`catchWhale price=${price}`)
                 let sumInDollar=price*amountInQty
 
 
@@ -203,9 +216,20 @@ const WhaleCatcher = () => {
 
                 // console.log("token sent to exchange!" + data["result"][datum].to)
                 // console.log(`data["result"][datum]= ${JSON.stringify(data["result"][datum])}`)                   
-                const temp=[]
-                temp.push(data["result"][datum])
-                setOffloadingWhale(temp)
+                console.log(`blocknumber= ${JSON.stringify(data["result"][datum].blockNumber)}`)                   
+                
+                const block=Object.values(offloadingWhale).map(function(d){
+                  return d["blockNumber"]
+                })
+                console.log(`block=${block}`)
+                if (!block.includes(data["result"][datum].blockNumber)){
+                  const temp=offloadingWhale
+                  // const temp=[]
+                  temp.push(data["result"][datum])
+                  setOffloadingWhale(temp)  
+                }
+
+                // console.log(`blocknumber from offload=${JSON.stringify(offloadingWhale)}`)
                 // console.log(`offloadingWhale[0]=${JSON.stringify(offloadingWhale[0])}`)
               }
               // else{
@@ -213,7 +237,7 @@ const WhaleCatcher = () => {
               // }
           }
         }
-        console.log("o")
+        // console.log("o")
 
       } else {
         console.log("an error has occurred");
@@ -258,7 +282,48 @@ const WhaleCatcher = () => {
     } else {
       console.log("wrong entry, check again");
     }  
-  } // end of cmcPriceApi
+  } // end of cmcPriceApi 
+
+
+  const coingeckoPriceApi = async (contractAdd) => {
+
+    if (contractAdd != "") {
+      let url = "";
+      url= `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAdd}&vs_currencies=usd`
+      
+      const res = await fetch(url, {
+        method: "GET",
+        x_cg_pro_api_key: `${import.meta.env.VITE_CoinGeckoApiKey}`
+      });
+
+      if (res.ok) {
+        let data = await res.json();
+        // console.log(`coingecko data=${JSON.stringify(data)}`)
+        let price=0.0
+        
+        for (const datum in data){
+          price = data[datum].usd
+        }        
+        // console.log(`coingeckoPriceApi price=${price}`)
+        setTokenPrice(price)
+
+        return price
+        // for(const eachToken in data["data"][tokenName]){
+        //   if (data["data"][tokenName][eachToken]["platform"]["token_address"]==tokenAddress){
+        //     price=data["data"][tokenName][eachToken]["quote"]["USD"]["price"]  
+        //     console.log(`price=${price}`)
+        //     return price
+        //   }
+        //   console.log(".")
+        // }
+
+      } else {
+        console.log("an error has occurred");
+      }
+    } else {
+      console.log("wrong entry, check again");
+    }  
+  } // end of coingeckoPriceApi
 
   
 
@@ -314,6 +379,17 @@ const WhaleCatcher = () => {
       controller.abort();
     };
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    console.log(`useEffect tokenPrice=${tokenPrice}`)
+
+
+    return () => {
+      // console.log("useEffect return");
+      controller.abort();
+    };
+  }, [tokenPrice]);  
 
   // useEffect(() => {
   //   const controller = new AbortController();
@@ -385,6 +461,7 @@ const WhaleCatcher = () => {
           />
         );
       })}
+      <p>Price Data, Powered by CoinGecko</p>
       <br />
       <br />
       <br />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Address from "./Address";
+import styles from "./Address.module.css";
 import SelectOptionCom from "../components/SelectOptionCom.jsx";
 import {exchangesInShibaInuToken, exchangesInPepeToken} from "./exchangesAddress.js";
 import ButtonCom from "../components/ButtonCom.jsx";
@@ -116,7 +117,7 @@ const WhaleCatcher = () => {
 
     const contractAddress=tokenAddress
     // console.log(`contractAddress=${contractAddress}`)
-    const totalPage=20
+    const totalPage=5
     
     if (contractAddress != "") {
       let url = "";
@@ -171,6 +172,7 @@ const WhaleCatcher = () => {
               // console.log(`exchangesAdd=${JSON.stringify(exchangesAdd)}`)          
 
               if (Object.values(exchangesAdd).includes(toAddress)){
+                console.log("includedddddddddddddddddddddddddddddddddddddddddddd")
                 console.log(`from=${data["result"][datum].from}`)
                 // AMOUNT
                 let amountInQty=decimalValue*data["result"][datum].value
@@ -382,7 +384,7 @@ const WhaleCatcher = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    console.log(`useEffect tokenPrice=${tokenPrice}`)
+    // console.log(`useEffect tokenPrice=${tokenPrice}`)
 
 
     return () => {
@@ -447,6 +449,14 @@ const WhaleCatcher = () => {
           className="col-md-6"
         ></input>
       </div> */}
+      <br/>
+      <div className={`row ${styles.address}`}>
+        <div className="col-sm-1"> </div>
+        <div className="col-sm-1">Token</div>
+        <div className="col-sm-7">from</div>
+        <div className="col-sm-1">To</div>
+        <div className="col-sm-1">Amount</div>
+      </div>
       {offloadingWhale.map((item, idx) => {
         return (
           <Address

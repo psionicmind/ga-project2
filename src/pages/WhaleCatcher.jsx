@@ -17,8 +17,6 @@ const WhaleCatcher = () => {
   const [tokenPrice, setTokenPrice] = useState(0.0);
 
   // const selectedRef = useRef();
-  
-  
 
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -30,6 +28,7 @@ const WhaleCatcher = () => {
   }
   
   function runLoopFunction(){
+    // playSound()
     setStopLoop(false)
     let exchangeAddressesOnly = "";
     let exchangesAddress = "";
@@ -168,10 +167,11 @@ const WhaleCatcher = () => {
           if (data["result"][datum].confirmations <=200){ // don't take too long ago data
 
               
-              // console.log(datum + " " + toAddress)          
+              console.log(datum + " " + toAddress)          
               // console.log(`exchangesAdd=${JSON.stringify(exchangesAdd)}`)          
 
               if (Object.values(exchangesAdd).includes(toAddress)){
+                // playFoundWhaleSound()
                 console.log("includedddddddddddddddddddddddddddddddddddddddddddd")
                 console.log(`from=${data["result"][datum].from}`)
                 // AMOUNT
@@ -239,7 +239,7 @@ const WhaleCatcher = () => {
               // }
           }
         }
-        // console.log("o")
+        console.log("o")
 
       } else {
         console.log("an error has occurred");
@@ -378,6 +378,7 @@ const WhaleCatcher = () => {
 
     return () => {
       // console.log("useEffect return");
+    
       controller.abort();
     };
   }, []);
@@ -406,10 +407,21 @@ const WhaleCatcher = () => {
   //   };
   // }, [stopLoop]);
 
+  function playSound(){
+    console.log("play sound")
+    var audio = new Audio('../../sound/money-button.mp3');
+    audio.play();
+  }
+
+  function playFoundWhaleSound(){
+    console.log("play sound")
+    var audio = new Audio('../../sound/i-see-money-181273.mp3');
+    audio.play();
+  }  
+
   return (
     <div className="container">
       <h1>Whale Catcher</h1>
-
       {/* <div className="row">
         <label>0x6982508145454Ce325dDbE47a25d4ec3d2311933</label>
         <input

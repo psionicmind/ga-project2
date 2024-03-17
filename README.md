@@ -38,6 +38,5 @@ There are several ways we can monetize.
 
 # Reference
 - Documentation for etherscan.io, coingecko and airtable
-
-# Resource
-- Sound Effect https://pixabay.com/sound-effects
+- myinstants money money money money sound clip
+- pixabay "i see money" sound clip by "myuserofmusicmagicmaker"

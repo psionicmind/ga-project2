@@ -4,11 +4,6 @@ import UpdateUserModal from "./UpdateUserModal";
 
 const Address = (props) => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  // const [showDeleteButton, setShowDeleteButton]= useState(false);
-  // const [showUpdateButton, setShowUpdateButton]= useState(false);
-
-  // console.log(props.isShowDeleteButton);
-  // setShowDeleteButton(props.isShowDeleteButton);
 
   const deleteUser = async () => {
     console.log(`props.id=${props.id}`);

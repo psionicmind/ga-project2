@@ -7,10 +7,6 @@ const OverLayUser = (props) => {
   const addressRef = useRef();
 
   const updateUser = async () => {
-    console.log(`props.id=${props.id}`);
-    console.log(`nameRef.current.value=${nameRef.current.value}`);
-    console.log(`addressRef.current.value=${addressRef.current.value}`);
-
     const res = await fetch(import.meta.env.VITE_SERVER + "/hw/users/", {
       method: "PATCH",
       headers: {

@@ -16,14 +16,12 @@ const ContractAddress = () => {
 
   
   const getData = () => {
-    console.log("getData @ ContractAddress.jsx");
     getLocalData()   
     getServerUpdate(); // airtable data
 
   };
 
   const getLocalData = () => {
-    console.log("getting local data")
     const temp=[...contractAddressList]
     setDefaultAddress(temp);
   }
@@ -76,7 +74,6 @@ const ContractAddress = () => {
 
 
   const getServerUpdate = async (signal) => {
-    console.log("getting server data from airtable")
     try {
       const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`
 
@@ -87,13 +84,10 @@ const ContractAddress = () => {
 
       if (res.ok) {        
         const data = await res.json();
-        // console.log(data.records.length)
-        // console.log(data.records)
 
         let nameOfRecord=""
         let addressOfRecord=""
         let id=""
-        // console.log("ready")
 
         let tempList=[]
         for (const record in data.records){
@@ -101,19 +95,11 @@ const ContractAddress = () => {
           nameOfRecord = data.records[record].fields.name
           addressOfRecord=data.records[record].fields.address
 
-          // console.log(id)
-          // console.log(nameOfRecord)
-          // console.log(addressOfRecord)
           tempList.push({id:`${id}`,name: `${nameOfRecord}`, address: `${addressOfRecord}`})
         }
 
-        console.log("see lah")
-        console.log(tempList)
         userDefinedAddressList=[...tempList]
-        console.log(userDefinedAddressList)
-
         const temp=[...tempList]
-
         setUserDefined(temp);        
 
       }
@@ -125,18 +111,11 @@ const ContractAddress = () => {
   }
 
   const setDataToAirTable = () => {
-    console.log("setDataToAirTable")
 
     // for airtable
     createRecordInServer()
-
-    console.log("creating new array in exchangesArray")
     exchangesArray.push([])
-
-    // tokenNames.push(tagRef.current.value)
-    console.log(Object.keys(tokenNames).length)
     tokenNames[tagRef.current.value] = Object.keys(tokenNames).length // increment value
-    // next will be set data to airtable for persistence storage
 
     return true;
 
@@ -146,11 +125,6 @@ const ContractAddress = () => {
   const addAddress = () => {
     const tag = tagRef.current.value;
     const address = addressRef.current.value;
-  
-    console.log(tag)
-    console.log(address)
-    console.log(`tagRef.current.value=${tagRef.current.value}`)
-    console.log(`addressRef.current.value=${addressRef.current.value}`)
 
     if (address != "") {    
       if (setDataToAirTable()){
@@ -168,7 +142,6 @@ const ContractAddress = () => {
   
 
   useEffect(() => {
-    console.log("useEffect")
     const controller = new AbortController();
 
     if (isFirstTimeLoading === false){
@@ -186,7 +159,6 @@ const ContractAddress = () => {
       controller.abort();
     };
   }, []);
-  // }, [userDefined]);
 
   return (
     <div className="container">
@@ -208,9 +180,6 @@ const ContractAddress = () => {
         <ButtonCom handleBtnClick={addAddress}>
           Add Contract Address
         </ButtonCom>
-      <div>
-        {/* {Isloading && spinnerComponent} */}
-      </div>
       </div>
       <br/>
       <br/>

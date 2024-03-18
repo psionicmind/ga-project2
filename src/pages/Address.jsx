@@ -44,6 +44,7 @@ const Address = (props) => {
         <div className="col-sm-7">{props.address}</div>
         <div className="col-sm-1">{props.targetedExchangeName}</div>
         <div className="col-sm-1">{props.amountInQty}</div>
+        <div className="col-sm-1">{props.displayAmountInQty}</div>
         <div className="col-sm-1">{props.sumInDollar}</div>        
         {/* <button className="col-sm-1" onClick={deleteUser}>delete</button>
         <button className="col-sm-1" onClick={() => setShowUpdateModal(true)}>update</button> */}

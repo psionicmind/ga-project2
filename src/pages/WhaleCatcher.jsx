@@ -38,16 +38,15 @@ const WhaleCatcher = () => {
       // console.log("checking against pepe's exchange")
       exchangesAddress=exchangesInPepeToken
       exchangeAddressesOnly=Object.values(exchangesInPepeToken).map(function(d){
-        return d["address"]        
+        return d["address"].toLowerCase()        
       })
-
       console.log(`runLoopFunction exchangeAddresses= ${JSON.stringify(exchangeAddressesOnly)}`)
     }
     else if (contractAddress ==="0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"){
       // console.log("checking against shiba inu's exchange")
       exchangesAddress=exchangesInShibaInuToken
       exchangeAddressesOnly=Object.values(exchangesInShibaInuToken).map(function(d){
-        return d["address"]
+        return d["address"].toLowerCase()
       })
       console.log(`runLoopFunction exchangeAddresses= ${JSON.stringify(exchangeAddressesOnly)}`)
     }
@@ -55,36 +54,78 @@ const WhaleCatcher = () => {
     // console.log(`tokenPrice=${tokenPrice}`)
     // console.log(`runLoopFunction contractAddress=${contractAddress}`)
     const price=coingeckoPriceApi(contractAddress)
-    // console.log(`runLoopFunction price=${JSON.stringify(price)}`)
+    console.log(`runLoopFunction price=${JSON.stringify(price)}`)
     setTokenPrice(price)
 
     loopFunction(price, 0,exchangeAddressesOnly, exchangesAddress)    
   }
 
-  function loopFunction(price, counter, address, exchangesAddress) {
+  // function loopFunction(price, counter, address, exchangesAddress) {
+  //   // console.log(`loopFunction price=${JSON.stringify(price)}`)
+  //   // console.log(price)
+  //   console.log(`stopLoop................=${stopLoop}`)
+
+  //   while (stopLoop===false){
+  //     console.log(`in while...........`)      
+  //     sleep(1000).then(() => {
+  //       console.log("after sleep")
+  //       counter++
+  //       if (counter >=5){
+  //         counter=0
+  //         // console.log(`counter tokenPrice=${tokenPrice}`)
+  //         // console.log(`counter tokenAddress=${tokenAddress}`)
+  //         price=coingeckoPriceApi(tokenAddress)
+  //         // console.log(`counter price=${JSON.stringify(price)}`)
+  //         setTokenPrice(price)
+  //       }
+  //       console.log("starting catchwhale")
+  //       catchWhale(price, address, exchangesAddress)
+  //     });
+  //   }
+  // }
+
+  function loopFunction(price, counter, exchangeAddressesOnly, exchangesAddress) {
     // console.log(`loopFunction price=${JSON.stringify(price)}`)
     // console.log(price)
-    sleep(1000).then(() => {
+
+    sleep(1000).then(async () => {
       // console.log(`stopLoop................=${stopLoop}`)
       counter++
       if (counter >=5){
         counter=0
 
-        // console.log(`counter tokenPrice=${tokenPrice}`)
-        // console.log(`counter tokenAddress=${tokenAddress}`)
-        price=coingeckoPriceApi(tokenAddress)
-        // console.log(`counter price=${JSON.stringify(price)}`)
+        console.log(`counter tokenAddress=${tokenAddress}`)
+        price= await coingeckoPriceApi(tokenAddress)
+      
+        console.log(`counter tokenPrice=${tokenPrice}`)
+        console.log(`counter price=${JSON.stringify(price)}`)
+        console.log(price)
+
+        let temp=[...offloadingWhale]
+        for (const datum in temp){
+          console.log(temp[datum].amountInQty)
+          console.log(`temp[datum].sumInDollar = ${temp[datum].sumInDollar}`)
+          if (temp[datum].sumInDollar===NaN){
+            temp[datum].sumInDollar = temp[datum].amountInQty * price
+          }
+          console.log(`temp[datum].sumInDollar = ${temp[datum].sumInDollar}`)
+        }
+        setOffloadingWhale(temp)
+
+
         setTokenPrice(price)
       }
 
       if (stopLoop===false){
-        catchWhale(price, address, exchangesAddress)
-        loopFunction(price, counter, address, exchangesAddress);
+        catchWhale(price, exchangeAddressesOnly, exchangesAddress)
+        loopFunction(price, counter, exchangeAddressesOnly, exchangesAddress);
       }
       else
         return
     });
   }
+
+
 
 //   const IsToAddressAnExchange = (data, exchangesAdd) => {
 //     console.log("data = " + JSON.stringify(data))    
@@ -108,6 +149,74 @@ const WhaleCatcher = () => {
 //     return false;
 // }
 
+// const catchWhale = async (price, exchangeAddressesOnly, exchangesAddress) => {
+//   const contractAddress=tokenAddress
+//   const totalPage=20
+  
+//   if (contractAddress != "") {
+//     let url = "";
+//     url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&page=1&offset=${totalPage}&startblock=0&endblock=99999999&sort=desc&apikey=${import.meta.env.VITE_YourApiKeyToken}`  
+
+//     const res  = await fetch(url)
+//     if (res.ok) {
+//       let data = await res.json();
+//       setCatchingWhale(data);
+
+//       for (const datum in data["result"]){
+//         let toAddress = data["result"][datum].to
+//         // console.log(datum + " " + toAddress)
+//         // const tokenDecimal= data["result"][datum].tokenDecimal
+//         // const decimalValue= (1.0/(Math.pow(10,tokenDecimal)))
+
+//         if (data["result"][datum].confirmations <=200){ // don't take too long ago data
+
+//           // const block=Object.values(offloadingWhale).map(function(d){
+//           //   return d["blockNumber"]
+//           // })
+
+//           // if (!block.includes(data["result"][datum].blockNumber)){
+//           //   const indexValue= Object.values(exchangeAddressesOnly).indexOf(toAddress)
+//           //   if (indexValue!=-1){
+//           //     console.log(datum + " " + toAddress)          
+//           //     // console.log(`indexValue=${indexValue}`)
+//           //     console.log(`exchange address ${JSON.stringify(exchangesAddress[indexValue])}`)
+//           //   }
+//           // }
+//           toAddress = toAddress.toLowerCase()
+//           console.log(toAddress)
+//           if (Object.values(exchangeAddressesOnly).includes(toAddress)){
+//             console.log("come in here liao")
+
+//             // NAME OF EXCHANGE BEING SENT TO (CAN SHORT IN ANY EXCHANGES, FYI ONLY)
+//             const indexAdd=Object.values(exchangeAddressesOnly).indexOf(toAddress)
+//             const targetedExchangeName=exchangesAddress[indexAdd].name
+//             data["result"][datum].targetedExchangeName= targetedExchangeName;
+
+//             console.log(`new data=${JSON.stringify(targetedExchangeName)}`)
+
+//             const block=Object.values(offloadingWhale).map(function(d){
+//               return d["blockNumber"]
+//             })
+//             if (!block.includes(data["result"][datum].blockNumber)){
+//               console.log(datum + " " + toAddress)              
+//               const temp=offloadingWhale
+//               temp.push(data["result"][datum])
+//               console.log(`temp=${temp}`)
+//               setOffloadingWhale(temp)  
+//             }
+
+//           }
+//         }
+//       }
+//       console.log("o")
+//     } else {
+//       console.log("an error has occurred");
+//     }
+//   } else {
+//     console.log("wrong entry, check again");
+//   }  
+// } // end of catchWhale
+
   const catchWhale = async (price, exchangesAdd, exchangesAddress) => {
     // const contractAddress = contractAddressRef.current.value;
     // const walletAddress = walletAddressRef.current.value;
@@ -116,7 +225,7 @@ const WhaleCatcher = () => {
 
     const contractAddress=tokenAddress
     // console.log(`contractAddress=${contractAddress}`)
-    const totalPage=5
+    const totalPage=20
     
     if (contractAddress != "") {
       let url = "";
@@ -167,64 +276,62 @@ const WhaleCatcher = () => {
           if (data["result"][datum].confirmations <=200){ // don't take too long ago data
 
               
-              console.log(datum + " " + toAddress)          
-              // console.log(`exchangesAdd=${JSON.stringify(exchangesAdd)}`)          
+            // console.log(datum + " " + toAddress)          
+            
+            const block=Object.values(offloadingWhale).map(function(d){
+              return d["blockNumber"]
+            })
+            // console.log(`block=${block}`)
+            if (!block.includes(data["result"][datum].blockNumber)){
+              const indexValue= Object.values(exchangesAdd).indexOf(toAddress)
+              if (indexValue!=-1){
+                console.log(datum + " " + toAddress)          
+                console.log(`indexValue=${indexValue}`)
+                console.log(`exchange address ${JSON.stringify(exchangesAddress[indexValue])}`)
+              }
+            }
+
+
 
               if (Object.values(exchangesAdd).includes(toAddress)){
-                // playFoundWhaleSound()
-                console.log("includedddddddddddddddddddddddddddddddddddddddddddd")
-                console.log(`from=${data["result"][datum].from}`)
+
+                // console.log("includedddddddddddddddddddddddddddddddddddddddddddd")
+                // console.log(`from=${data["result"][datum].from}`)
                 // AMOUNT
                 let amountInQty=decimalValue*data["result"][datum].value
-                amountInQty = amountInQty.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                let displayAmountInQty = amountInQty.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                 // console.log(`$${(Math.round(amount * 100) / 100).toFixed(2)}`)
-                data["result"][datum].amountInQty= amountInQty;
-                console.log(`${amountInQty} qty of ${data["result"][datum].tokenName} tokens`)
+                data["result"][datum].amountInQty=amountInQty
+                data["result"][datum].displayAmountInQty= displayAmountInQty;
+                console.log(`amountInQty=${amountInQty} and displayAmountInQty=${displayAmountInQty}`)
+                // console.log(`${amountInQty} qty of ${data["result"][datum].tokenName} tokens`)
 
-                console.log(`catchWhale price=${price}`)
+                // console.log(`catchWhale price=${price}`)
+                console.log(`catchWhale price=${JSON.stringify(price)}`)
                 let sumInDollar=price*amountInQty
+                console.log(`sumInDollar=${sumInDollar}`)
 
 
-
-
-
-
-
-
-
-
-
-                sumInDollar=0    // always gives NaN
-
-
-
-
-
-
-
-
-
-
-                // console.log(`sumInDollar=${sumInDollar}`)
                 data["result"][datum].sumInDollar= sumInDollar;
 
                 // NAME OF EXCHANGE BEING SENT TO (CAN SHORT IN ANY EXCHANGES, FYI ONLY)
                 const indexAdd=Object.values(exchangesAdd).indexOf(toAddress)
                 const targetedExchangeName=exchangesAddress[indexAdd].name
-                console.log(`indexAdd=${indexAdd}`)
-                console.log(`targetedExchangeName=${targetedExchangeName}`)
+                // console.log(`indexAdd=${indexAdd}`)
+                // console.log(`targetedExchangeName=${targetedExchangeName}`)
                 data["result"][datum].targetedExchangeName= targetedExchangeName;
 
 
                 // console.log("token sent to exchange!" + data["result"][datum].to)
                 // console.log(`data["result"][datum]= ${JSON.stringify(data["result"][datum])}`)                   
-                console.log(`blocknumber= ${JSON.stringify(data["result"][datum].blockNumber)}`)                   
+                // console.log(`blocknumber= ${JSON.stringify(data["result"][datum].blockNumber)}`)                   
                 
                 const block=Object.values(offloadingWhale).map(function(d){
                   return d["blockNumber"]
                 })
-                console.log(`block=${block}`)
+                // console.log(`block=${block}`)
                 if (!block.includes(data["result"][datum].blockNumber)){
+                  // playFoundWhaleSound()
                   const temp=offloadingWhale
                   // const temp=[]
                   temp.push(data["result"][datum])
@@ -288,43 +395,48 @@ const WhaleCatcher = () => {
 
 
   const coingeckoPriceApi = async (contractAdd) => {
-
-    if (contractAdd != "") {
-      let url = "";
-      url= `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAdd}&vs_currencies=usd`
-      
-      const res = await fetch(url, {
-        method: "GET",
-        x_cg_pro_api_key: `${import.meta.env.VITE_CoinGeckoApiKey}`
-      });
-
-      if (res.ok) {
-        let data = await res.json();
-        // console.log(`coingecko data=${JSON.stringify(data)}`)
-        let price=0.0
+    try{
+      if (contractAdd != "") {
+        let url = "";
+        url= `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAdd}&vs_currencies=usd`
         
-        for (const datum in data){
-          price = data[datum].usd
-        }        
-        // console.log(`coingeckoPriceApi price=${price}`)
-        setTokenPrice(price)
+        const res = await fetch(url, {
+          method: "GET",
+          // mode: "cors",
+          x_cg_pro_api_key: `${import.meta.env.VITE_CoinGeckoApiKey}`
+        });
 
-        return price
-        // for(const eachToken in data["data"][tokenName]){
-        //   if (data["data"][tokenName][eachToken]["platform"]["token_address"]==tokenAddress){
-        //     price=data["data"][tokenName][eachToken]["quote"]["USD"]["price"]  
-        //     console.log(`price=${price}`)
-        //     return price
-        //   }
-        //   console.log(".")
-        // }
+        if (res.ok) {
+          let data = await res.json();
+          console.log(`coingecko data=${JSON.stringify(data)}`)
+          let price=0.0
+          
+          for (const datum in data){
+            price = data[datum].usd
+          }        
+          console.log(`coingeckoPriceApi price=${price}`)
+          setTokenPrice(price)
 
+          return price
+          // for(const eachToken in data["data"][tokenName]){
+          //   if (data["data"][tokenName][eachToken]["platform"]["token_address"]==tokenAddress){
+          //     price=data["data"][tokenName][eachToken]["quote"]["USD"]["price"]  
+          //     console.log(`price=${price}`)
+          //     return price
+          //   }
+          //   console.log(".")
+          // }
+
+        } else {
+          console.log("an error has occurred");
+        }
       } else {
-        console.log("an error has occurred");
-      }
-    } else {
-      console.log("wrong entry, check again");
-    }  
+        console.log("wrong entry, check again");
+      }  
+    }
+    catch (error){
+      console.log(error)
+    }
   } // end of coingeckoPriceApi
 
   

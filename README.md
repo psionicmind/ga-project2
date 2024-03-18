@@ -38,5 +38,10 @@ There are several ways we can monetize.
 
 # Reference
 - Documentation for etherscan.io, coingecko and airtable
+    - coingecko documentation https://www.coingecko.com/api/documentation
+    - etherscan.io documention https://docs.etherscan.io/api-endpoints/accounts
+    - airtable create https://airtable.com/appau3qeDmEuoOXAq/api/docs#curl/table:contractaddress:create
+    - airtable get https://airtable.com/appau3qeDmEuoOXAq/api/docs#curl/table:contractaddress:retrieve
 - myinstants money money money money sound clip
 - pixabay "i see money" sound clip by "myuserofmusicmagicmaker"
+

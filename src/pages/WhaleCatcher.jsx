@@ -267,9 +267,9 @@ const WhaleCatcher = () => {
       <ButtonCom handleBtnClick={runLoopFunction}>
           Catch Whale
       </ButtonCom>
-      <ButtonCom handleBtnClick={stopLoopFunction}>
+      {/* <ButtonCom handleBtnClick={stopLoopFunction}>
           Stop Loop
-      </ButtonCom>
+      </ButtonCom> */}
       </div>
 
       <br/>

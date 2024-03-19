@@ -26,6 +26,7 @@ const ContractAddress = () => {
     setDefaultAddress(temp);
   }
 
+  // create a record in airtable using useRef from two edit box
   const createRecordInServer = async (signal) => {
     try {
       const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`     
@@ -51,6 +52,7 @@ const ContractAddress = () => {
 
       if (res.ok) {
 
+        // append to temp variable of state and set to state.
         let tempList=[...userDefined, {id:"", name: `${tagRef.current.value}`, address: `${addressRef.current.value}`}]
         userDefinedAddressList = [...tempList]
 
@@ -72,7 +74,7 @@ const ContractAddress = () => {
     setUserDefined(temp)
   }
 
-
+  // get airtable data to useState (userDefined)
   const getServerUpdate = async (signal) => {
     try {
       const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/contractAddress`
@@ -110,22 +112,29 @@ const ContractAddress = () => {
     }
   }
 
+  // create record in airtable
+  // create a placeholder in exchangesArray for new token's 
+  // exchanges list to be used in WALLET tab.
   const setDataToAirTable = () => {
 
     // for airtable
     createRecordInServer()
     exchangesArray.push([])
+
+    // increment tokenName (that are used to reference token's place in exchangesArray (e.g. 0,1,2....))
     tokenNames[tagRef.current.value] = Object.keys(tokenNames).length // increment value
 
     return true;
 
   }
 
-  
-  const addAddress = () => {
-    const tag = tagRef.current.value;
+  // use useRef from two edit box to be used in createRecordInServer, 
+  // which is inside setDataToAirTable. adding address to airtbable
+  const addAddress = () => {    
+    const tag = tagRef.current.value; // obsolete and to be delete after check later
     const address = addressRef.current.value;
 
+    // basic business logic check
     if (address != "") {    
       if (setDataToAirTable()){
         getServerUpdate(); // airtable data
@@ -144,6 +153,7 @@ const ContractAddress = () => {
   useEffect(() => {
     const controller = new AbortController();
 
+    // this if else is not useful; to be delete after testing
     if (isFirstTimeLoading === false){
       console.log("******************not first time loading")
       getData()

@@ -27,6 +27,7 @@ const WalletAddress = () => {
     setDefaultAddress(temp);
   }
 
+  // get data from airtable
   const getServerUpdate = async (signal) => {
     try {
       const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/exchangesInToken`
@@ -63,16 +64,18 @@ const WalletAddress = () => {
     }
   }
   
+  // handle select element change
   const handleSelectChange = (event) => {
-
+    // send  selected value to set state
     const selectedTokenName=event.target.value
     setTokenName(selectedTokenName)
 
-    // setLocalData
+    // take the correct exchanges list of wallet address and set state.
     const temp = [...exchangesArray[tokenNames[selectedTokenName]]]      
     setDefaultAddress(temp);      
   }
 
+  // add address to airtable and clear away useRef
   const addAddress = async (event) => {
 
     if (addressRef.current.value != "") {
@@ -88,7 +91,8 @@ const WalletAddress = () => {
     }
   };
 
-
+  // set the two useRef data (tag and address) to exchangesArray list of exchange wallet address.
+  // also create record in airtable using the same two data.
   const setDataToAirTable = () => {
     if (tokenName=="shiba inu"){
       exchangesArray[tokenNames["shiba inu"]].push({name: tagRef.current.value, address: addressRef.current.value})
@@ -105,6 +109,7 @@ const WalletAddress = () => {
     return true;
   }
 
+  // create record in airtable using tag and address useRef
   const createRecordInServer = async (signal) => {
     try {
       const url =`https://api.airtable.com/v0/appau3qeDmEuoOXAq/exchangesInToken`     
@@ -139,7 +144,7 @@ const WalletAddress = () => {
     }
   }
 
-
+  // upon loading, load getData
   useEffect(() => {
     const controller = new AbortController();
     getData(controller.signal);
@@ -149,6 +154,7 @@ const WalletAddress = () => {
     };
   }, []);
 
+  // upon change of tokenName, get wallet address data from airtable
   useEffect(() => {
     const controller = new AbortController();
     getServerUpdate()
